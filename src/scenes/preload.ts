@@ -5,9 +5,10 @@ export const imageIso = import.meta.glob<{ default: string }>(
   { eager: true }
 );
 
-console.log(imageIso);
-
-export const RESOURCES = {} as const;
+export const RESOURCES = {
+  WARNING_TILE: "warning-tile.png",
+  DUPLICATER_MACHINE: "duplicater-machine.png",
+} as const;
 
 export const RESOURCES_INDEX = Object.keys(RESOURCES).reduce(
   (acc, key, index) => ({ ...acc, [key]: index }),
@@ -18,11 +19,11 @@ export const RESOURCES_LIST = Object.values(RESOURCES);
 
 declare var WebFont: any;
 
-export class SceneMain extends Phaser.Scene {
+export class ScenePreload extends Phaser.Scene {
   declare keySpace: Phaser.Input.Keyboard.Key;
 
   constructor() {
-    super({ key: "SceneMain" });
+    super({ key: "ScenePreload" });
   }
 
   preload() {
@@ -30,17 +31,23 @@ export class SceneMain extends Phaser.Scene {
       "webfont",
       "https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"
     );
+    for (const sprite in imageIso) {
+      this.load.image(
+        sprite.replace("../assets/", ""),
+        imageIso[sprite].default
+      );
+    }
   }
 
   create() {
     WebFont.load({
       google: {
-        families: [],
+        families: ["Silkscreen"],
       },
       active: () => {
         this.add
           .text(260, 320, "Press space to start", {
-            fontFamily: "Alkalami",
+            fontFamily: "Silkscreen",
             fontSize: "32px",
             color: "#ffffff",
           })
@@ -49,6 +56,10 @@ export class SceneMain extends Phaser.Scene {
     });
 
     this.keySpace = this.input.keyboard!.addKey("SPACE");
+
+    this.scene.transition({
+      target: "SceneWorld",
+    });
   }
 
   update(/*time, delta*/) {

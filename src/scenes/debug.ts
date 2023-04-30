@@ -1,9 +1,7 @@
 import { Display } from "phaser";
 import { Pane } from "tweakpane";
-import { SceneWorld, tileSizeHeight, tileSizeWidth } from "./world";
-import Sand from "../components/Sand";
-import TickEquip from "../components/TickEquip";
-import TickHealth from "../components/TickHealth";
+import { SceneWorld } from "./world";
+//import { SceneWorld, tileSizeHeight, tileSizeWidth } from "./world";
 
 type Color = Display.Color;
 const Color = Display.Color;
@@ -46,18 +44,9 @@ export class SceneDebug extends Phaser.Scene {
       this.sceneWorld.cameras.main
     ) as Phaser.Math.Vector2;
 
-    const pointerTile = this.sceneWorld.map.map.worldToTileXY(
-      worldPoint.x,
-      worldPoint.y, //- this.map.tileWidth / 2,,
-      true
-    );
-
     //    console.log(this.map.getTileAt(pointerTile.x, pointerTile.y));
 
-    if (pointerTile) {
-      this.marker.clear();
-
-      /**
+    /**
       this.drawMark(
         pointerTile.x,
         pointerTile.y,
@@ -66,31 +55,20 @@ export class SceneDebug extends Phaser.Scene {
       );
       /**/
 
-      // Snap to tile coordinates, but in world space
-      //this.marker.x = worldCoord.x;
-      //this.marker.y = worldCoord.y - tileFloorHeight[tileAt.index];
+    // Snap to tile coordinates, but in world space
+    //this.marker.x = worldCoord.x;
+    //this.marker.y = worldCoord.y - tileFloorHeight[tileAt.index];
 
-      //log(`mouse is at, ${worldCoord.x}, ${worldCoord.y}`);
-      //debugEvery(500);
+    //log(`mouse is at, ${worldCoord.x}, ${worldCoord.y}`);
+    //debugEvery(500);
 
-      params.fps = this.game.loop.actualFps;
-      params.tileCoord.x = pointerTile.x;
-      params.tileCoord.y = pointerTile.y;
-      params.worldCoord.x = worldPoint.x;
-      params.worldCoord.y = worldPoint.y;
-      params.tile = this.sceneWorld.map.map.getTileAt(
-        Math.floor(pointerTile.x),
-        Math.floor(pointerTile.y)
-      )?.index!;
-
-      params.sandTank = Sand.size[this.sceneWorld.player.id];
-      params.equipTick = TickEquip.equip[this.sceneWorld.player.id];
-      params.healthTick = TickHealth.health[this.sceneWorld.player.id];
-    }
+    params.fps = this.game.loop.actualFps;
+    //params.worldCoord.x = worldPoint.x;
+    //params.worldCoord.y = worldPoint.y;
 
     this.pane.refresh();
   }
-
+  /*
   drawMark(
     x: number,
     y: number,
@@ -115,5 +93,5 @@ export class SceneDebug extends Phaser.Scene {
     graphics.lineTo(tileSizeWidth / 2, 0);
     graphics.closePath();
     graphics.strokePath();
-  }
+  } */
 }

@@ -174,7 +174,7 @@ asynckit@^0.4.0:
   resolved "https://registry.npmjs.org/asynckit/-/asynckit-0.4.0.tgz"
   integrity sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==
 
-bitecs@^0.3.38:
+bitecs@0.3.38:
   version "0.3.38"
   resolved "https://registry.npmjs.org/bitecs/-/bitecs-0.3.38.tgz"
   integrity sha512-vfz6wjPElg/0O7c06Ttb/BeWMInBspSuekRvNoLqPyEZV87tLWipxqpjtGPKZBhin8jv4OuQkrkZZfZpaqOndQ==
@@ -880,7 +880,7 @@ phaser@3.60.0:
   dependencies:
     eventemitter3 "^5.0.0"
 
-phaser3-rex-plugins@^1.60.0:
+phaser3-rex-plugins@1.60.0:
   version "1.60.0"
   resolved "https://registry.npmjs.org/phaser3-rex-plugins/-/phaser3-rex-plugins-1.60.0.tgz"
   integrity sha512-poYBr/pfRvjDe7J7Z3tqmrHcUDSLNehiNu95wnvSLVwDEePNwuPSvuw6oat3z0tx0Qmw04AtCHfXd1ADLeuFXA==

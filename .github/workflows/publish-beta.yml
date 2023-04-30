@@ -2,7 +2,7 @@ name: Publish to beta branch itch.io
 
 env:
   ITCHIO_CHANNEL: html5
-  ITCHIO_GAME: testing-deploy
+  ITCHIO_GAME: alpha-sand-factory
   ITCHIO_USERNAME: debone
 
 # You can block these tags from push on github settings

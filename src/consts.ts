@@ -18,12 +18,14 @@ export const GAME_CONFIG = {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
-  width: 800,
-  height: 600,
+  width: 50 * 16,
+  height: 32 * 16,
+  pixelArt: true,
   backgroundColor: COLORS[0],
   //"render.transparent": true,
   parent: "game-container",
-  physics: {
-    default: "arcade",
-  },
 };
+
+export const tileSize = 16;
+export const sandWorldWidth = 240;
+export const sandWorldHeight = 240;
