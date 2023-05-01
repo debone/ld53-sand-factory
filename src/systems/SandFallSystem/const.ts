@@ -1,3 +1,5 @@
+/* eslint key-spacing: ["error", { "align": "value" }] */
+
 // 0000_0000_0000_0000_0000_0000_0000_0000
 
 import { assert } from "../../lib/assert";
@@ -26,7 +28,35 @@ export const PIXEL_TYPE_CRUSHER = 0b0001_0000;
 
 export const SAND_CHECK_MASK = 0b1000_0000;
 export const SAND_CHECK_SHIFT = 7;
-export const SAND_TYPE_NORMAL = 0b1000_0010;
+
+// prettier-ignore
+export const SAND_TYPE_NORMAL =           0b1000_0010;
+// prettier-ignore
+export const SAND_TYPE_GLASS =            0b1000_0100;
+// prettier-ignore
+export const SAND_TYPE_SHINY_GLASS =      0b1000_0110;
+// prettier-ignore
+export const SAND_TYPE_CRUSHED_GLASS =    0b1000_1000;
+// prettier-ignore
+export const SAND_TYPE_EMERALD =          0b1000_1010;
+// prettier-ignore
+export const SAND_TYPE_NORMAL_EMERALD =   0b1000_1100;
+// prettier-ignore
+export const SAND_TYPE_CRUSHED_EMERALD =  0b1000_1110;
+// prettier-ignore
+export const SAND_TYPE_AMBER =            0b1001_0000;
+// prettier-ignore
+export const SAND_TYPE_CRUSHED_AMBER =    0b1001_0010;
+// prettier-ignore
+export const SAND_TYPE_COAL =             0b1001_0100;
+// prettier-ignore
+export const SAND_TYPE_CRUSHED_COAL =     0b1001_0110;
+// prettier-ignore
+export const SAND_TYPE_DIAMOND =          0b1001_1000;
+// prettier-ignore
+export const SAND_TYPE_CRUSHED_DIAMOND =  0b1001_1010;
+// prettier-ignore
+export const SAND_TYPE_TRASH =            0b1001_1100;
 
 export const VARIANT_MASK = 0b0011_1111_0000_0000;
 export const VARIANT_SHIFT = 8;
@@ -138,22 +168,89 @@ assert(
 );
 
 // Sand types
-export const SAND_TYPES = [SAND_TYPE_NORMAL] as const;
+export const SAND_TYPES = [
+  SAND_TYPE_NORMAL,
+  SAND_TYPE_GLASS,
+  SAND_TYPE_SHINY_GLASS,
+  SAND_TYPE_CRUSHED_GLASS,
+  SAND_TYPE_EMERALD,
+  SAND_TYPE_NORMAL_EMERALD,
+  SAND_TYPE_CRUSHED_EMERALD,
+  SAND_TYPE_AMBER,
+  SAND_TYPE_CRUSHED_AMBER,
+  SAND_TYPE_COAL,
+  SAND_TYPE_CRUSHED_COAL,
+  SAND_TYPE_DIAMOND,
+  SAND_TYPE_CRUSHED_DIAMOND,
+  SAND_TYPE_TRASH,
+] as const;
 
-export const SAND_TYPE_MINIMAP_COLORS = [0xe6904e];
+export const SAND_TYPE_MINIMAP_COLORS = [
+  0xe6904e, 0xe6904e, 0xe6904e, 0xe6904e, 0xe6904e, 0xe6904e, 0xe6904e,
+  0xe6904e, 0xe6904e, 0xe6904e, 0xe6904e, 0xe6904e, 0xe6904e, 0xe6904e,
+];
 
 export const SAND_TYPE_RENDER_CALL = [
   (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
     rt.batchDraw(RESOURCES.SAND_NORMAL, x * 16, y * 16);
   },
+  // SAND_TYPE_GLASS
+  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
+    throw `No render for this sand type yet`;
+  },
+  // SAND_TYPE_SHINY_GLASS
+  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
+    throw `No render for this sand type yet`;
+  },
+  // SAND_TYPE_CRUSHED_GLASS
+  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
+    throw `No render for this sand type yet`;
+  },
+  // SAND_TYPE_EMERALD
+  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
+    throw `No render for this sand type yet`;
+  },
+  // SAND_TYPE_NORMAL_EMERALD
+  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
+    throw `No render for this sand type yet`;
+  },
+  // SAND_TYPE_CRUSHED_EMERALD
+  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
+    throw `No render for this sand type yet`;
+  },
+  // SAND_TYPE_AMBER
+  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
+    throw `No render for this sand type yet`;
+  },
+  // SAND_TYPE_CRUSHED_AMBER
+  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
+    throw `No render for this sand type yet`;
+  },
+  // SAND_TYPE_COAL
+  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
+    throw `No render for this sand type yet`;
+  },
+  // SAND_TYPE_CRUSHED_COAL
+  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
+    throw `No render for this sand type yet`;
+  },
+  // SAND_TYPE_DIAMOND
+  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
+    throw `No render for this sand type yet`;
+  },
+  // SAND_TYPE_CRUSHED_DIAMOND
+  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
+    throw `No render for this sand type yet`;
+  },
+  // SAND_TYPE_TRASH
+  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
+    throw `No render for this sand type yet`;
+  },
 ];
-
-export const SAND_TYPE_ACTION_CALL = [() => {}];
 
 assert(
   SAND_TYPES.length === SAND_TYPE_MINIMAP_COLORS.length &&
-    SAND_TYPES.length === SAND_TYPE_RENDER_CALL.length &&
-    SAND_TYPES.length === SAND_TYPE_ACTION_CALL.length,
+    SAND_TYPES.length === SAND_TYPE_RENDER_CALL.length,
   "SAND_TYPES, SAND_TYPE_MINIMAP_COLORS, SAND_TYPE_RENDER_CALL, SAND_TYPE_ACTION_CALL must have the same length"
 );
 
@@ -207,6 +304,39 @@ export const PIXEL_TYPE_CRUSHER_SHIFTED = GetPixelType(PIXEL_TYPE_CRUSHER);
 
 export const SAND_TYPE_NORMAL_SHIFTED = GetPixelType(SAND_TYPE_NORMAL);
 
+export const SAND_TYPE_GLASS_SHIFTED = GetPixelType(SAND_TYPE_GLASS);
+export const SAND_TYPE_SHINY_GLASS_SHIFTED = GetPixelType(
+  SAND_TYPE_SHINY_GLASS
+);
+export const SAND_TYPE_CRUSHED_GLASS_SHIFTED = GetPixelType(
+  SAND_TYPE_CRUSHED_GLASS
+);
+
+export const SAND_TYPE_EMERALD_SHIFTED = GetPixelType(SAND_TYPE_EMERALD);
+export const SAND_TYPE_NORMAL_EMERALD_SHIFTED = GetPixelType(
+  SAND_TYPE_NORMAL_EMERALD
+);
+export const SAND_TYPE_CRUSHED_EMERALD_SHIFTED = GetPixelType(
+  SAND_TYPE_CRUSHED_EMERALD
+);
+
+export const SAND_TYPE_AMBER_SHIFTED = GetPixelType(SAND_TYPE_AMBER);
+export const SAND_TYPE_CRUSHED_AMBER_SHIFTED = GetPixelType(
+  SAND_TYPE_CRUSHED_AMBER
+);
+
+export const SAND_TYPE_COAL_SHIFTED = GetPixelType(SAND_TYPE_COAL);
+export const SAND_TYPE_CRUSHED_COAL_SHIFTED = GetPixelType(
+  SAND_TYPE_CRUSHED_COAL
+);
+
+export const SAND_TYPE_DIAMOND_SHIFTED = GetPixelType(SAND_TYPE_DIAMOND);
+export const SAND_TYPE_CRUSHED_DIAMOND_SHIFTED = GetPixelType(
+  SAND_TYPE_CRUSHED_DIAMOND
+);
+
+export const SAND_TYPE_TRASH_SHIFTED = GetPixelType(SAND_TYPE_TRASH);
+
 //export const DUPLICATER_MACHINE = "duplicater-machine";
 
 export const TileTypes = [
@@ -238,6 +368,129 @@ export const TILES = {
     height: 1,
     texture: RESOURCES.TILE_WARNING,
     pixelType: PIXEL_TYPE_TILE_LOCK,
+  },
+};
+
+export const SandTypes = [
+  SAND_TYPE_NORMAL,
+  SAND_TYPE_GLASS,
+  SAND_TYPE_SHINY_GLASS,
+  SAND_TYPE_CRUSHED_GLASS,
+  SAND_TYPE_EMERALD,
+  SAND_TYPE_NORMAL_EMERALD,
+  SAND_TYPE_CRUSHED_EMERALD,
+  SAND_TYPE_AMBER,
+  SAND_TYPE_CRUSHED_AMBER,
+  SAND_TYPE_COAL,
+  SAND_TYPE_CRUSHED_COAL,
+  SAND_TYPE_DIAMOND,
+  SAND_TYPE_CRUSHED_DIAMOND,
+] as const;
+
+export type SandType = (typeof SandTypes)[number];
+
+export const SANDS = {
+  [SAND_TYPE_NORMAL]: {
+    name: "Common sand",
+    width: 1,
+    height: 1,
+    texture: RESOURCES.SAND_NORMAL,
+    pixelType: SAND_TYPE_NORMAL,
+    cost: 1,
+    unlocksAt: 0,
+  },
+  [SAND_TYPE_GLASS]: {
+    name: "Glass",
+    width: 1,
+    height: 1,
+    texture: RESOURCES.SAND_GLASS,
+    pixelType: SAND_TYPE_GLASS,
+    cost: 10,
+    unlocksAt: 100,
+  },
+  [SAND_TYPE_SHINY_GLASS]: {
+    name: "Shiny glass",
+    width: 1,
+    height: 1,
+    texture: RESOURCES.SAND_SHINY_GLASS,
+    pixelType: SAND_TYPE_SHINY_GLASS,
+  },
+  [SAND_TYPE_CRUSHED_GLASS]: {
+    name: "Crushed glass",
+    width: 1,
+    height: 1,
+    texture: RESOURCES.SAND_CRUSHED_GLASS,
+    pixelType: SAND_TYPE_CRUSHED_GLASS,
+  },
+  [SAND_TYPE_EMERALD]: {
+    name: "Emerald",
+    width: 1,
+    height: 1,
+    texture: RESOURCES.SAND_EMERALD,
+    pixelType: SAND_TYPE_EMERALD,
+  },
+  [SAND_TYPE_NORMAL_EMERALD]: {
+    name: "Normal sand with emerald",
+    width: 1,
+    height: 1,
+    texture: RESOURCES.SAND_NORMAL_EMERALD,
+    pixelType: SAND_TYPE_NORMAL_EMERALD,
+  },
+  [SAND_TYPE_CRUSHED_EMERALD]: {
+    name: "Crushed emerald",
+    width: 1,
+    height: 1,
+    texture: RESOURCES.SAND_CRUSHED_EMERALD,
+    pixelType: SAND_TYPE_CRUSHED_EMERALD,
+  },
+  [SAND_TYPE_AMBER]: {
+    name: "Amber",
+    width: 1,
+    height: 1,
+    texture: RESOURCES.SAND_AMBER,
+    pixelType: SAND_TYPE_AMBER,
+  },
+  [SAND_TYPE_CRUSHED_AMBER]: {
+    name: "Crushed amber",
+    width: 1,
+    height: 1,
+    texture: RESOURCES.SAND_CRUSHED_AMBER,
+    pixelType: SAND_TYPE_CRUSHED_AMBER,
+  },
+  [SAND_TYPE_COAL]: {
+    name: "Coal",
+    width: 1,
+    height: 1,
+    texture: RESOURCES.SAND_COAL,
+    pixelType: SAND_TYPE_COAL,
+  },
+  [SAND_TYPE_CRUSHED_COAL]: {
+    name: "Crushed coal",
+    width: 1,
+    height: 1,
+    texture: RESOURCES.SAND_CRUSHED_COAL,
+    pixelType: SAND_TYPE_CRUSHED_COAL,
+  },
+  [SAND_TYPE_DIAMOND]: {
+    name: "Diamond",
+    width: 1,
+    height: 1,
+    texture: RESOURCES.SAND_DIAMOND,
+    pixelType: SAND_TYPE_DIAMOND,
+  },
+  [SAND_TYPE_CRUSHED_DIAMOND]: {
+    name: "Crushed diamond",
+    width: 1,
+    height: 1,
+    texture: RESOURCES.SAND_CRUSHED_DIAMOND,
+    pixelType: SAND_TYPE_CRUSHED_DIAMOND,
+  },
+  [SAND_TYPE_TRASH]: {
+    name: "Trash",
+    width: 1,
+    height: 1,
+    texture: RESOURCES.SAND_TRASH,
+    pixelType: SAND_TYPE_TRASH,
   },
 };
 

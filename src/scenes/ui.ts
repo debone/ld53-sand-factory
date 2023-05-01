@@ -3,7 +3,7 @@ import RexUIPlugin from "phaser3-rex-plugins/templates/ui/ui-plugin.js";
 
 import { GAME_CONFIG, tileSize } from "../consts";
 import { RESOURCES } from "./preload";
-import { SceneWorld } from "./world";
+import { SceneWorld, cameraTilesHeight, cameraTilesWidth } from "./world";
 import { params } from "./debug";
 import PhaserGamebus from "../gamebus";
 import {
@@ -28,7 +28,7 @@ import sweepToolImg from "../assets/ui/sweep-tool.png?url";
 // @ts-ignore
 import type Color = Display.Color;
 import { MACHINES } from "../systems/MachineSystem";
-import { TILES } from "../systems/SandFallSystem/const";
+import { SANDS, TILES } from "../systems/SandFallSystem/const";
 const Color = Display.Color;
 
 export const UITilesWidth = 17;
@@ -50,6 +50,8 @@ export const BASE_TEXT_STYLE = {
 
 export const SELECTED_TOOL_TILE = "selected-tool-tile";
 export const SELECTED_TOOL_MACHINE = "selected-tool-machine";
+export const SELECTED_TOOL_SAND = "selected-tool-sand";
+
 export const SELECTED_TOOL_INSPECTOR = "selected-tool-inspect";
 export const SELECTED_TOOL_ERASER = "selected-tool-eraser";
 export const SELECTED_TOOL_SWEEP = "selected-tool-sweep";
@@ -153,8 +155,8 @@ export class SceneUI extends Phaser.Scene {
       .setAlpha(0)
       .setActive(false);
 
-    this.input.on("pointerdown", () => {
-      this.emitMouseDown();
+    this.input.on("pointerdown", (pointer: Phaser.Input.Pointer) => {
+      this.emitMouseDown(pointer);
       draw = true;
     });
 
@@ -164,7 +166,7 @@ export class SceneUI extends Phaser.Scene {
 
     this.input.on("pointermove", (pointer: Phaser.Input.Pointer) => {
       if (draw && pointer.noButtonDown() === false) {
-        this.emitMouseDown();
+        this.emitMouseDown(pointer);
       } else {
         this.emitMouseMove(pointer);
       }
@@ -172,6 +174,13 @@ export class SceneUI extends Phaser.Scene {
 
     this.keyE = this.input.keyboard!.addKey("E");
     const keyR = this.input.keyboard!.addKey("R");
+    const keyEsc = this.input.keyboard!.addKey("ESC");
+
+    keyEsc.on("up", () => {
+      this.activeTool = SELECTED_TOOL_INSPECTOR;
+      this.activeToolData = null;
+      this.mouseOverlayObject.setAlpha(0);
+    });
 
     keyR.on("up", () => {
       this.activeToolRotation = (this.activeToolRotation + 1) % 4;
@@ -190,7 +199,16 @@ export class SceneUI extends Phaser.Scene {
 
   declare mouseOverlayObject: Phaser.GameObjects.Image;
 
-  emitMouseDown() {
+  emitMouseDown(pointer: Phaser.Input.Pointer) {
+    if (
+      pointer.x < tileSize ||
+      pointer.y < tileSize ||
+      pointer.x > cameraTilesWidth * tileSize ||
+      pointer.y > cameraTilesHeight * tileSize
+    ) {
+      return;
+    }
+
     switch (true) {
       case this.activeTool === SELECTED_TOOL_TILE: {
         this.bus.emit(
@@ -221,10 +239,20 @@ export class SceneUI extends Phaser.Scene {
   }
 
   emitMouseMove(pointer: Phaser.Input.Pointer) {
-    this.mouseOverlayObject.x =
-      Math.floor(pointer.worldX / tileSize) * tileSize + tileSize / 2;
-    this.mouseOverlayObject.y =
-      Math.floor(pointer.worldY / tileSize) * tileSize + tileSize / 2;
+    if (
+      pointer.x > tileSize &&
+      pointer.y > tileSize &&
+      pointer.x < cameraTilesWidth * tileSize &&
+      pointer.y < cameraTilesHeight * tileSize
+    ) {
+      this.mouseOverlayObject.setVisible(true);
+      this.mouseOverlayObject.x =
+        Math.floor(pointer.worldX / tileSize) * tileSize + tileSize / 2;
+      this.mouseOverlayObject.y =
+        Math.floor(pointer.worldY / tileSize) * tileSize + tileSize / 2;
+    } else {
+      this.mouseOverlayObject.setVisible(false);
+    }
 
     switch (true) {
       case this.activeTool === SELECTED_TOOL_TILE: {
@@ -243,6 +271,31 @@ export class SceneUI extends Phaser.Scene {
   }
 
   worldVelocity = 1;
+
+  worldPlay() {
+    this.worldVelocity = 1;
+    this.world.timestep.paused = false;
+    // @ts-ignore
+    this.world.timestep.delay = 250;
+  }
+
+  worldPause() {
+    this.worldVelocity = 0;
+    this.world.timestep.paused = true;
+  }
+
+  worldStep() {
+    this.worldVelocity = 0;
+    this.world.timestep.paused = true;
+    this.world.worldStep();
+  }
+
+  worldFF() {
+    this.worldVelocity = 2;
+    this.world.timestep.paused = false;
+    // @ts-ignore
+    this.world.timestep.delay = 16;
+  }
 
   createUIElements() {
     const playButtonSprite = this.add
@@ -269,6 +322,19 @@ export class SceneUI extends Phaser.Scene {
       .sprite(tileSize * 34, tileSize * 14, "sweep-tool", 0)
       .setInteractive();
 
+    const keyOne = this.input.keyboard!.addKey(
+      Phaser.Input.Keyboard.KeyCodes.ONE
+    );
+    const keyTwo = this.input.keyboard!.addKey(
+      Phaser.Input.Keyboard.KeyCodes.TWO
+    );
+    const keyThree = this.input.keyboard!.addKey(
+      Phaser.Input.Keyboard.KeyCodes.THREE
+    );
+    const keyFour = this.input.keyboard!.addKey(
+      Phaser.Input.Keyboard.KeyCodes.FOUR
+    );
+
     playButtonSprite.on("pointerout", () => {
       playButtonSprite.setFrame(0);
     });
@@ -278,12 +344,16 @@ export class SceneUI extends Phaser.Scene {
     playButtonSprite.on("pointerdown", () => {
       playButtonSprite.setFrame(2);
     });
+    keyOne.on("down", () => {
+      playButtonSprite.setFrame(2);
+    });
     playButtonSprite.on("pointerup", () => {
       playButtonSprite.setFrame(1);
-      this.worldVelocity = 1;
-      this.world.timestep.paused = false;
-      // @ts-ignore
-      this.world.timestep.delay = 250;
+      this.worldPlay();
+    });
+    keyOne.on("up", () => {
+      playButtonSprite.setFrame(0);
+      this.worldPlay();
     });
 
     pauseButtonSprite.on("pointerout", () => {
@@ -295,11 +365,18 @@ export class SceneUI extends Phaser.Scene {
     pauseButtonSprite.on("pointerdown", () => {
       pauseButtonSprite.setFrame(2);
     });
+    keyTwo.on("down", () => {
+      pauseButtonSprite.setFrame(2);
+    });
     pauseButtonSprite.on("pointerup", () => {
       pauseButtonSprite.setFrame(1);
       if (this.worldVelocity === 2) stepIndicatorSprite.setFrame(frame);
-      this.worldVelocity = 0;
-      this.world.timestep.paused = true;
+      this.worldPause();
+    });
+    keyTwo.on("up", () => {
+      pauseButtonSprite.setFrame(0);
+      if (this.worldVelocity === 2) stepIndicatorSprite.setFrame(frame);
+      this.worldPause();
     });
 
     stepButtonSprite.on("pointerout", () => {
@@ -311,11 +388,16 @@ export class SceneUI extends Phaser.Scene {
     stepButtonSprite.on("pointerdown", () => {
       stepButtonSprite.setFrame(2);
     });
+    keyThree.on("down", () => {
+      stepButtonSprite.setFrame(2);
+    });
     stepButtonSprite.on("pointerup", () => {
       stepButtonSprite.setFrame(1);
-      this.worldVelocity = 0;
-      this.world.timestep.paused = true;
-      this.world.worldStep();
+      this.worldStep();
+    });
+    keyThree.on("up", () => {
+      stepButtonSprite.setFrame(0);
+      this.worldStep();
     });
 
     ffButtonSprite.on("pointerout", () => {
@@ -327,12 +409,16 @@ export class SceneUI extends Phaser.Scene {
     ffButtonSprite.on("pointerdown", () => {
       ffButtonSprite.setFrame(2);
     });
+    keyFour.on("down", () => {
+      ffButtonSprite.setFrame(2);
+    });
     ffButtonSprite.on("pointerup", () => {
       ffButtonSprite.setFrame(1);
-      this.worldVelocity = 2;
-      this.world.timestep.paused = false;
-      // @ts-ignore
-      this.world.timestep.delay = 16;
+      this.worldFF();
+    });
+    keyFour.on("up", () => {
+      ffButtonSprite.setFrame(0);
+      this.worldFF();
     });
 
     eraserToolSprite.on("pointerout", () => {
@@ -417,9 +503,9 @@ export class SceneUI extends Phaser.Scene {
           ),
           text: this.add.text(0, 0, "Tiles", {
             ...BASE_TEXT_STYLE,
-            fontSize: 12,
+            fontSize: 11,
           }),
-          space: { left: 10, right: 11, top: 6, bottom: 10 },
+          space: { left: 6, right: 7, top: 5, bottom: 8 },
         }),
         page: this.createTabUI(TILES, SELECTED_TOOL_TILE),
       })
@@ -438,12 +524,32 @@ export class SceneUI extends Phaser.Scene {
           ),
           text: this.add.text(0, 0, "Machines", {
             ...BASE_TEXT_STYLE,
-            fontSize: 12,
+            fontSize: 11,
           }),
-
-          space: { left: 10, right: 11, top: 6, bottom: 10 },
+          space: { left: 6, right: 6, top: 4, bottom: 8 },
         }),
         page: this.createTabUI(MACHINES, SELECTED_TOOL_MACHINE),
+      })
+      .addPage({
+        key: "sand",
+        tab: this.rexUI.add.label({
+          height: 10,
+
+          background: this.rexUI.add.roundRectangle(
+            0,
+            0,
+            0,
+            0,
+            0,
+            UI_COLOR_DARK
+          ),
+          text: this.add.text(0, 0, "Sand", {
+            ...BASE_TEXT_STYLE,
+            fontSize: 11,
+          }),
+          space: { left: 6, right: 6, top: 4, bottom: 8 },
+        }),
+        page: this.createTabUI(SANDS, SELECTED_TOOL_SAND),
       })
       .layout()
       .swapFirstPage();
@@ -453,7 +559,10 @@ export class SceneUI extends Phaser.Scene {
 
   createTabUI(
     items: { [itemKey: string]: { name: string; texture: string } },
-    toolType: typeof SELECTED_TOOL_TILE | typeof SELECTED_TOOL_MACHINE
+    toolType:
+      | typeof SELECTED_TOOL_TILE
+      | typeof SELECTED_TOOL_MACHINE
+      | typeof SELECTED_TOOL_SAND
   ) {
     const scrollablePanel = this.rexUI.add
       .scrollablePanel({

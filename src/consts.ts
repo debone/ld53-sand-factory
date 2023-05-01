@@ -18,8 +18,8 @@ export const GAME_CONFIG = {
     mode: Phaser.Scale.FIT,
     autoCenter: Phaser.Scale.CENTER_BOTH,
   },
-  width: 50 * 16,
-  height: 32 * 16,
+  width: 50 * 16, // 800
+  height: 32 * 16, // 512
   pixelArt: true,
   backgroundColor: COLORS[0],
   //"render.transparent": true,

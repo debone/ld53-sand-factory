@@ -1,6 +1,7 @@
 import { sandWorldHeight, sandWorldWidth } from "../../consts";
 import { totalSand } from "../../scenes/ui";
 import { VARIANT_MACHINE_CORE } from "../MachineSystem";
+import { directions } from "../consts";
 import {
   CleanIteration,
   GetPixelDirection,
@@ -85,9 +86,15 @@ export const core = () => {
       }
 
       try {
-        PIXEL_TYPE_ACTION_CALL[GetPixelType(sandWorld[curr]) - 1][
+        PIXEL_TYPE_ACTION_CALL[GetPixelType(sandWorld[curr]) - 1](
+          x,
+          loopY,
+          curr,
+          sandWorld,
+          iteration,
+          nextIteration,
           GetPixelDirection(sandWorld[curr])
-        ](x, loopY, curr, sandWorld, iteration, nextIteration);
+        );
       } catch (e) {
         debugger;
       }
@@ -95,316 +102,188 @@ export const core = () => {
   }
 };
 
-const PIXEL_TYPE_NORMAL_EMITTER_ACTIONS = [
-  (
-    _x: number,
-    _y: number,
-    curr: number,
-    sandWorld: Uint32Array,
-    _iteration: number,
-    nextIteration: number
-  ) => {
-    if (
-      GetPixelType(sandWorld[curr - sandWorldWidth]) === PIXEL_TYPE_AIR_SHIFTED
-    ) {
-      sandWorld[curr - sandWorldWidth] = SAND_TYPE_NORMAL | nextIteration;
-    }
-  },
-  (
-    _x: number,
-    _y: number,
-    curr: number,
-    sandWorld: Uint32Array,
-    _iteration: number,
-    nextIteration: number
-  ) => {
-    if (GetPixelType(sandWorld[curr + 1]) === PIXEL_TYPE_AIR_SHIFTED) {
-      sandWorld[curr + 1] = SAND_TYPE_NORMAL | nextIteration;
-    }
-  },
-  (
-    _x: number,
-    _y: number,
-    curr: number,
-    sandWorld: Uint32Array,
-    _iteration: number,
-    nextIteration: number
-  ) => {
-    if (
-      GetPixelType(sandWorld[curr + sandWorldWidth]) === PIXEL_TYPE_AIR_SHIFTED
-    ) {
-      sandWorld[curr + sandWorldWidth] = SAND_TYPE_NORMAL | nextIteration;
-    }
-  },
-  (
-    _x: number,
-    _y: number,
-    curr: number,
-    sandWorld: Uint32Array,
-    _iteration: number,
-    nextIteration: number
-  ) => {
-    if (GetPixelType(sandWorld[curr - 1]) === PIXEL_TYPE_AIR_SHIFTED) {
-      sandWorld[curr - 1] = SAND_TYPE_NORMAL | nextIteration;
-    }
-  },
+const DIR_EMITTER = [
+  [-sandWorldWidth, -sandWorldWidth],
+  [1, 1],
+  [sandWorldWidth, sandWorldWidth],
+  [-1, -1],
 ];
 
-const PIXEL_TYPE_COLLECTOR_ACTIONS = [
-  (_x: number, _y: number, curr: number, sandWorld: Uint32Array) => {
-    if (GetPixelVariant(sandWorld[curr]) === VARIANT_MACHINE_CORE) {
-      if (
-        IsSand(sandWorld[curr - sandWorldWidth]) &&
-        (sandWorld[curr - sandWorldWidth] & STEP_MARKER_MASK) === iteration
-      ) {
-        sandWorld[curr - sandWorldWidth] = PIXEL_TYPE_AIR;
-        totalSand.count += 1;
-      }
+const PIXEL_TYPE_NORMAL_EMITTER_ACTIONS = (
+  _x: number,
+  _y: number,
+  curr: number,
+  sandWorld: Uint32Array,
+  _iteration: number,
+  nextIteration: number,
+  direction: number
+) => {
+  if (
+    GetPixelType(sandWorld[curr + DIR_EMITTER[direction][0]]) ===
+    PIXEL_TYPE_AIR_SHIFTED
+  ) {
+    sandWorld[curr + DIR_EMITTER[direction][1]] =
+      SAND_TYPE_NORMAL | nextIteration;
+  }
+};
 
-      if (
-        IsSand(sandWorld[curr - sandWorldWidth - 1]) &&
-        (sandWorld[curr - sandWorldWidth - 1] & STEP_MARKER_MASK) === iteration
-      ) {
-        sandWorld[curr - sandWorldWidth - 1] = PIXEL_TYPE_AIR;
-        totalSand.count += 1;
-      }
-
-      if (
-        IsSand(sandWorld[curr - sandWorldWidth + 1]) &&
-        (sandWorld[curr - sandWorldWidth + 1] & STEP_MARKER_MASK) === iteration
-      ) {
-        sandWorld[curr - sandWorldWidth + 1] = PIXEL_TYPE_AIR;
-        totalSand.count += 1;
-      }
-    }
-  },
-  (_x: number, _y: number, curr: number, sandWorld: Uint32Array) => {
-    if (GetPixelVariant(sandWorld[curr]) === VARIANT_MACHINE_CORE) {
-      if (
-        IsSand(sandWorld[curr + 1]) &&
-        (sandWorld[curr + 1] & STEP_MARKER_MASK) === iteration
-      ) {
-        sandWorld[curr + 1] = PIXEL_TYPE_AIR;
-        totalSand.count += 1;
-      }
-      if (
-        IsSand(sandWorld[curr + sandWorldWidth + 1]) &&
-        (sandWorld[curr + sandWorldWidth + 1] & STEP_MARKER_MASK) === iteration
-      ) {
-        sandWorld[curr + sandWorldWidth + 1] = PIXEL_TYPE_AIR;
-        totalSand.count += 1;
-      }
-      if (
-        IsSand(sandWorld[curr - sandWorldWidth + 1]) &&
-        (sandWorld[curr - sandWorldWidth + 1] & STEP_MARKER_MASK) === iteration
-      ) {
-        sandWorld[curr - sandWorldWidth + 1] = PIXEL_TYPE_AIR;
-        totalSand.count += 1;
-      }
-    }
-  },
-  (_x: number, _y: number, curr: number, sandWorld: Uint32Array) => {
-    if (GetPixelVariant(sandWorld[curr]) === VARIANT_MACHINE_CORE) {
-      if (
-        IsSand(sandWorld[curr + sandWorldWidth]) &&
-        (sandWorld[curr + sandWorldWidth] & STEP_MARKER_MASK) === iteration
-      ) {
-        sandWorld[curr + sandWorldWidth] = PIXEL_TYPE_AIR;
-        totalSand.count += 1;
-      }
-      if (
-        IsSand(sandWorld[curr + sandWorldWidth + 1]) &&
-        (sandWorld[curr + sandWorldWidth + 1] & STEP_MARKER_MASK) === iteration
-      ) {
-        sandWorld[curr + sandWorldWidth + 1] = PIXEL_TYPE_AIR;
-        totalSand.count += 1;
-      }
-      if (
-        IsSand(sandWorld[curr + sandWorldWidth - 1]) &&
-        (sandWorld[curr + sandWorldWidth - 1] & STEP_MARKER_MASK) === iteration
-      ) {
-        sandWorld[curr + sandWorldWidth - 1] = PIXEL_TYPE_AIR;
-        totalSand.count += 1;
-      }
-    }
-  },
-  (_x: number, _y: number, curr: number, sandWorld: Uint32Array) => {
-    if (GetPixelVariant(sandWorld[curr]) === VARIANT_MACHINE_CORE) {
-      if (
-        IsSand(sandWorld[curr - 1]) &&
-        (sandWorld[curr - 1] & STEP_MARKER_MASK) === iteration
-      ) {
-        sandWorld[curr - 1] = PIXEL_TYPE_AIR;
-        totalSand.count += 1;
-      }
-      if (
-        IsSand(sandWorld[curr + sandWorldWidth - 1]) &&
-        (sandWorld[curr + sandWorldWidth - 1] & STEP_MARKER_MASK) === iteration
-      ) {
-        sandWorld[curr + sandWorldWidth - 1] = PIXEL_TYPE_AIR;
-        totalSand.count += 1;
-      }
-      if (
-        IsSand(sandWorld[curr - sandWorldWidth - 1]) &&
-        (sandWorld[curr - sandWorldWidth - 1] & STEP_MARKER_MASK) === iteration
-      ) {
-        sandWorld[curr - sandWorldWidth - 1] = PIXEL_TYPE_AIR;
-        totalSand.count += 1;
-      }
-    }
-  },
+const DIR_COLLECTOR = [
+  [-sandWorldWidth, -sandWorldWidth - 1, -sandWorldWidth + 1],
+  [1, sandWorldWidth + 1, -sandWorldWidth + 1],
+  [sandWorldWidth, sandWorldWidth - 1, sandWorldWidth + 1],
+  [-1, sandWorldWidth - 1, -sandWorldWidth - 1],
 ];
+
+const PIXEL_TYPE_COLLECTOR_ACTIONS = (
+  _x: number,
+  _y: number,
+  curr: number,
+  sandWorld: Uint32Array,
+  _iteration: number,
+  nextIteration: number,
+  direction: number
+) => {
+  if (GetPixelVariant(sandWorld[curr]) === VARIANT_MACHINE_CORE) {
+    if (
+      IsSand(sandWorld[curr + DIR_COLLECTOR[direction][0]]) &&
+      (sandWorld[curr + DIR_COLLECTOR[direction][0]] & STEP_MARKER_MASK) ===
+        iteration
+    ) {
+      sandWorld[curr + DIR_COLLECTOR[direction][0]] = PIXEL_TYPE_AIR;
+      totalSand.count += 1;
+    }
+
+    if (
+      IsSand(sandWorld[curr + DIR_COLLECTOR[direction][1]]) &&
+      (sandWorld[curr + DIR_COLLECTOR[direction][1]] & STEP_MARKER_MASK) ===
+        iteration
+    ) {
+      sandWorld[curr + DIR_COLLECTOR[direction][1]] = PIXEL_TYPE_AIR;
+      totalSand.count += 1;
+    }
+
+    if (
+      IsSand(sandWorld[curr + DIR_COLLECTOR[direction][2]]) &&
+      (sandWorld[curr + DIR_COLLECTOR[direction][2]] & STEP_MARKER_MASK) ===
+        iteration
+    ) {
+      sandWorld[curr + DIR_COLLECTOR[direction][2]] = PIXEL_TYPE_AIR;
+      totalSand.count += 1;
+    }
+  }
+};
 
 let tempSand = 0;
 
-const PIXEL_TYPE_DUPLICATER_ACTIONS = [
-  (
-    _x: number,
-    _y: number,
-    curr: number,
-    sandWorld: Uint32Array,
-    iteration: number,
-    nextIteration: number
-  ) => {
-    if (GetPixelVariant(sandWorld[curr]) === VARIANT_MACHINE_CORE) {
-      if (
-        IsSand(sandWorld[curr - sandWorldWidth]) &&
-        (sandWorld[curr - sandWorldWidth] & STEP_MARKER_MASK) === iteration
-      ) {
-        tempSand = sandWorld[curr - sandWorldWidth];
-        sandWorld[curr - sandWorldWidth] = PIXEL_TYPE_AIR;
-        sandWorld[curr + 2] = CleanIteration(tempSand) | nextIteration;
-        sandWorld[curr - 2] = CleanIteration(tempSand) | nextIteration;
-      }
-    }
-  },
-  (
-    _x: number,
-    _y: number,
-    curr: number,
-    sandWorld: Uint32Array,
-    iteration: number,
-    nextIteration: number
-  ) => {
-    if (GetPixelVariant(sandWorld[curr]) === VARIANT_MACHINE_CORE) {
-      if (
-        IsSand(sandWorld[curr + 1]) &&
-        (sandWorld[curr + 1] & STEP_MARKER_MASK) === iteration
-      ) {
-        tempSand = sandWorld[curr + 1];
-        sandWorld[curr + 1] = PIXEL_TYPE_AIR;
-        sandWorld[curr - sandWorldWidth - sandWorldWidth] =
-          CleanIteration(tempSand) | nextIteration;
-        sandWorld[curr + sandWorldWidth + sandWorldWidth] =
-          CleanIteration(tempSand) | nextIteration;
-      }
-    }
-  },
-  (
-    _x: number,
-    _y: number,
-    curr: number,
-    sandWorld: Uint32Array,
-    iteration: number,
-    nextIteration: number
-  ) => {
-    if (GetPixelVariant(sandWorld[curr]) === VARIANT_MACHINE_CORE) {
-      if (
-        IsSand(sandWorld[curr + sandWorldWidth]) &&
-        (sandWorld[curr + sandWorldWidth] & STEP_MARKER_MASK) === iteration
-      ) {
-        tempSand = sandWorld[curr + sandWorldWidth];
-        sandWorld[curr + sandWorldWidth] = PIXEL_TYPE_AIR;
-        sandWorld[curr + 2] = CleanIteration(tempSand) | nextIteration;
-        sandWorld[curr - 2] = CleanIteration(tempSand) | nextIteration;
-      }
-    }
-  },
-  (
-    _x: number,
-    _y: number,
-    curr: number,
-    sandWorld: Uint32Array,
-    iteration: number,
-    nextIteration: number
-  ) => {
-    if (GetPixelVariant(sandWorld[curr]) === VARIANT_MACHINE_CORE) {
-      if (
-        IsSand(sandWorld[curr - 1]) &&
-        (sandWorld[curr - 1] & STEP_MARKER_MASK) === iteration
-      ) {
-        tempSand = sandWorld[curr - 1];
-        sandWorld[curr - 1] = PIXEL_TYPE_AIR;
-        sandWorld[curr - sandWorldWidth - sandWorldWidth] =
-          CleanIteration(tempSand) | nextIteration;
-        sandWorld[curr + sandWorldWidth + sandWorldWidth] =
-          CleanIteration(tempSand) | nextIteration;
-      }
-    }
-  },
+const DIR_DUPLICATER = [
+  [-sandWorldWidth, 1 + 1, -1 - 1],
+  [1, -sandWorldWidth - sandWorldWidth, sandWorldWidth + sandWorldWidth],
+  [sandWorldWidth, 1 + 1, -1 - 1],
+  [-1, -sandWorldWidth - sandWorldWidth, sandWorldWidth + sandWorldWidth],
 ];
 
-const PIXEL_TYPE_CRUSHER_ACTIONS = [
-  (
-    _x: number,
-    _y: number,
-    curr: number,
-    sandWorld: Uint32Array,
-    _iteration: number,
-    _nextIteration: number
-  ) => {
-    if (GetPixelVariant(sandWorld[curr]) === VARIANT_MACHINE_CORE) {
-      // TODO check if sandbox is full
+const PIXEL_TYPE_DUPLICATER_ACTIONS = (
+  _x: number,
+  _y: number,
+  curr: number,
+  sandWorld: Uint32Array,
+  iteration: number,
+  nextIteration: number,
+  direction: number
+) => {
+  if (GetPixelVariant(sandWorld[curr]) === VARIANT_MACHINE_CORE) {
+    if (IsSand(sandWorld[curr + DIR_DUPLICATER[direction][0]])) {
+      tempSand = sandWorld[curr + DIR_DUPLICATER[direction][0]];
+      sandWorld[curr + DIR_DUPLICATER[direction][0]] = PIXEL_TYPE_AIR;
+      sandWorld[curr + DIR_DUPLICATER[direction][1]] =
+        CleanIteration(tempSand) | nextIteration;
+      sandWorld[curr + DIR_DUPLICATER[direction][2]] =
+        CleanIteration(tempSand) | nextIteration;
     }
-  },
-  (
-    _x: number,
-    _y: number,
-    curr: number,
-    sandWorld: Uint32Array,
-    _iteration: number,
-    _nextIteration: number
-  ) => {
-    if (GetPixelVariant(sandWorld[curr]) === VARIANT_MACHINE_CORE) {
-      // TODO check if sandbox is full
-    }
-  },
-  (
-    _x: number,
-    _y: number,
-    curr: number,
-    sandWorld: Uint32Array,
-    _iteration: number,
-    _nextIteration: number
-  ) => {
-    if (GetPixelVariant(sandWorld[curr]) === VARIANT_MACHINE_CORE) {
-      // TODO check if sandbox is full
-    }
-  },
-  (
-    _x: number,
-    _y: number,
-    curr: number,
-    sandWorld: Uint32Array,
-    _iteration: number,
-    _nextIteration: number
-  ) => {
-    if (GetPixelVariant(sandWorld[curr]) === VARIANT_MACHINE_CORE) {
-      // TODO check if sandbox is full
-    }
-  },
+  }
+};
+
+const DIR_CRUSHER = [
+  [
+    -sandWorldWidth - sandWorldWidth - 1,
+    -sandWorldWidth - sandWorldWidth + 1,
+    -sandWorldWidth - sandWorldWidth,
+    -sandWorldWidth - 1,
+    -sandWorldWidth + 1,
+    -sandWorldWidth,
+    sandWorldWidth,
+  ],
+  [
+    1 + 1 - sandWorldWidth,
+    1 + 1 + sandWorldWidth,
+    1 + 1,
+    1 - sandWorldWidth,
+    1 + sandWorldWidth,
+    1,
+    -1,
+  ],
+  [
+    sandWorldWidth + sandWorldWidth - 1,
+    sandWorldWidth + sandWorldWidth + 1,
+    sandWorldWidth + sandWorldWidth,
+    sandWorldWidth - 1,
+    sandWorldWidth + 1,
+    sandWorldWidth,
+    -sandWorldWidth,
+  ],
+  [
+    -1 - 1 - sandWorldWidth,
+    -1 - 1 + sandWorldWidth,
+    -1 - 1,
+    -1 - sandWorldWidth,
+    -1 + sandWorldWidth,
+    -1,
+    1,
+  ],
 ];
+
+const PIXEL_TYPE_CRUSHER_ACTIONS = (
+  _x: number,
+  _y: number,
+  curr: number,
+  sandWorld: Uint32Array,
+  _iteration: number,
+  _nextIteration: number,
+  direction: number
+) => {
+  if (GetPixelVariant(sandWorld[curr]) === VARIANT_MACHINE_CORE) {
+    // TODO check if sandbox is full
+    if (
+      IsSand(sandWorld[curr + DIR_CRUSHER[direction][0]]) &&
+      IsSand(sandWorld[curr + DIR_CRUSHER[direction][1]]) &&
+      IsSand(sandWorld[curr + DIR_CRUSHER[direction][2]]) &&
+      IsSand(sandWorld[curr + DIR_CRUSHER[direction][3]]) &&
+      IsSand(sandWorld[curr + DIR_CRUSHER[direction][4]]) &&
+      IsSand(sandWorld[curr + DIR_CRUSHER[direction][5]]) &&
+      GetPixelType(sandWorld[curr + DIR_CRUSHER[direction][6]]) ===
+        PIXEL_TYPE_AIR_SHIFTED
+    ) {
+      sandWorld[curr + DIR_CRUSHER[direction][0]] = PIXEL_TYPE_AIR;
+      sandWorld[curr + DIR_CRUSHER[direction][1]] = PIXEL_TYPE_AIR;
+      sandWorld[curr + DIR_CRUSHER[direction][2]] = PIXEL_TYPE_AIR;
+      sandWorld[curr + DIR_CRUSHER[direction][3]] = PIXEL_TYPE_AIR;
+      sandWorld[curr + DIR_CRUSHER[direction][4]] = PIXEL_TYPE_AIR;
+      sandWorld[curr + DIR_CRUSHER[direction][5]] = PIXEL_TYPE_AIR;
+      sandWorld[curr + DIR_CRUSHER[direction][6]] = SAND_TYPE_NORMAL;
+    }
+  }
+};
 
 export const PIXEL_TYPE_ACTION_CALL = [
   //PIXEL_TYPE_AIR
   //[(x: number, _y: number, i: number, sandWorld: Uint32Array) => {}],
-  [() => {}],
+  () => {},
   //PIXEL_TYPE_TILE_WOOD
-  [() => {}],
+  () => {},
   //PIXEL_TYPE_TILE_STEEL
-  [() => {}],
+  () => {},
   //PIXEL_TYPE_TILE_LOCK
-  [() => {}],
+  () => {},
   //PIXEL_TYPE_NORMAL_EMITTER
   PIXEL_TYPE_NORMAL_EMITTER_ACTIONS,
   //PIXEL_TYPE_COLLECTOR
@@ -414,3 +293,5 @@ export const PIXEL_TYPE_ACTION_CALL = [
   //PIXEL_TYPE_CRUSHER
   PIXEL_TYPE_CRUSHER_ACTIONS,
 ];
+
+export const SAND_TYPE_ACTION_CALL = [() => {}, () => {}];
