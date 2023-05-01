@@ -1,4 +1,4 @@
-import { Display } from "phaser";
+import { Display, GameObjects } from "phaser";
 import RexUIPlugin from "phaser3-rex-plugins/templates/ui/ui-plugin.js";
 
 import { GAME_CONFIG, tileSize } from "../consts";
@@ -7,9 +7,11 @@ import { SceneWorld, cameraTilesHeight, cameraTilesWidth } from "./world";
 import { params } from "./debug";
 import PhaserGamebus from "../gamebus";
 import {
+  ACTIVATE_ITEM_EVENT,
   ADD_MACHINE_EVENT,
   ADD_SAND_EVENT,
   ADD_TILE_EVENT,
+  MINIMAP_TOOL_EVENT,
   UP,
 } from "../systems/consts";
 
@@ -22,13 +24,16 @@ import ffButtonImg from "../assets/ui/ff-button.png?url";
 
 import stepIndicatorImg from "../assets/ui/step-indicator.png?url";
 
+import inspectToolImg from "../assets/ui/inspect-tool.png?url";
 import eraserToolImg from "../assets/ui/eraser-tool.png?url";
 import sweepToolImg from "../assets/ui/sweep-tool.png?url";
+import minimapToolImg from "../assets/ui/minimap-tool.png?url";
 
 // @ts-ignore
 import type Color = Display.Color;
 import { MACHINES } from "../systems/MachineSystem";
 import { SANDS, TILES } from "../systems/SandFallSystem/const";
+import RoundRectangle from "phaser3-rex-plugins/plugins/roundrectangle";
 const Color = Display.Color;
 
 export const UITilesWidth = 17;
@@ -54,9 +59,26 @@ export const SELECTED_TOOL_SAND = "selected-tool-sand";
 
 export const SELECTED_TOOL_INSPECTOR = "selected-tool-inspect";
 export const SELECTED_TOOL_ERASER = "selected-tool-eraser";
-export const SELECTED_TOOL_SWEEP = "selected-tool-sweep";
+export const SELECTED_TOOL_SWEEPER = "selected-tool-sweep";
 
-export let totalSand = { count: 0, lastUpdate: 0 };
+export const PROGRESSION_COST = [];
+
+export const PROGRESSION_REFERENCE = [];
+
+export let totalSand = {
+  count: 0,
+  lastUpdate: 0,
+  add(amount: number) {
+    totalSand.count += amount;
+
+    // Check if are beyond the value of an item
+
+    console.log(
+      "lol",
+      tabs.getByName("Lock tile label", true).emit(ACTIVATE_ITEM_EVENT)
+    );
+  },
+};
 
 export class SceneUI extends Phaser.Scene {
   declare rexUI: RexUIPlugin;
@@ -104,11 +126,19 @@ export class SceneUI extends Phaser.Scene {
       frameHeight: 16,
     });
 
+    this.load.spritesheet("inspect-tool", inspectToolImg, {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
     this.load.spritesheet("eraser-tool", eraserToolImg, {
       frameWidth: 32,
       frameHeight: 32,
     });
     this.load.spritesheet("sweep-tool", sweepToolImg, {
+      frameWidth: 32,
+      frameHeight: 32,
+    });
+    this.load.spritesheet("minimap-tool", minimapToolImg, {
       frameWidth: 32,
       frameHeight: 32,
     });
@@ -190,7 +220,12 @@ export class SceneUI extends Phaser.Scene {
     });
 
     this.createUIElements();
-    this.createTabs();
+    const tabs = this.createTabs();
+
+    console.log(
+      "lol",
+      tabs.getByName("Lock tile label", true).emit(ACTIVATE_ITEM_EVENT)
+    );
   }
 
   declare counterText: Phaser.GameObjects.Text;
@@ -232,7 +267,7 @@ export class SceneUI extends Phaser.Scene {
       case this.activeTool === SELECTED_TOOL_ERASER: {
         break;
       }
-      case this.activeTool === SELECTED_TOOL_SWEEP: {
+      case this.activeTool === SELECTED_TOOL_SWEEPER: {
         break;
       }
     }
@@ -264,7 +299,7 @@ export class SceneUI extends Phaser.Scene {
       case this.activeTool === SELECTED_TOOL_ERASER: {
         break;
       }
-      case this.activeTool === SELECTED_TOOL_SWEEP: {
+      case this.activeTool === SELECTED_TOOL_SWEEPER: {
         break;
       }
     }
@@ -315,11 +350,17 @@ export class SceneUI extends Phaser.Scene {
       .sprite(tileSize * 40 + 8, tileSize * 5 + 8, "step-indicator", 0)
       .setInteractive();
 
+    const inspectToolSprite = this.add
+      .sprite(tileSize * 34, tileSize * 10, "inspect-tool", 0)
+      .setInteractive();
     const eraserToolSprite = this.add
-      .sprite(tileSize * 34, tileSize * 11, "eraser-tool", 0)
+      .sprite(tileSize * 34, tileSize * 13, "eraser-tool", 0)
       .setInteractive();
     const sweepToolSprite = this.add
-      .sprite(tileSize * 34, tileSize * 14, "sweep-tool", 0)
+      .sprite(tileSize * 34, tileSize * 16, "sweep-tool", 0)
+      .setInteractive();
+    const minimapToolSprite = this.add
+      .sprite(tileSize * 34, tileSize * 19, "minimap-tool", 0)
       .setInteractive();
 
     const keyOne = this.input.keyboard!.addKey(
@@ -421,6 +462,23 @@ export class SceneUI extends Phaser.Scene {
       this.worldFF();
     });
 
+    inspectToolSprite.on("pointerout", () => {
+      inspectToolSprite.setFrame(0);
+    });
+    inspectToolSprite.on("pointerover", () => {
+      inspectToolSprite.setFrame(1);
+    });
+    inspectToolSprite.on("pointerdown", () => {
+      inspectToolSprite.setFrame(2);
+    });
+    inspectToolSprite.on("pointerup", () => {
+      inspectToolSprite.setFrame(1);
+
+      this.activeTool = SELECTED_TOOL_INSPECTOR;
+      this.activeToolData = null;
+      this.mouseOverlayObject.setAlpha(0);
+    });
+
     eraserToolSprite.on("pointerout", () => {
       eraserToolSprite.setFrame(0);
     });
@@ -447,6 +505,20 @@ export class SceneUI extends Phaser.Scene {
       sweepToolSprite.setFrame(1);
     });
 
+    minimapToolSprite.on("pointerout", () => {
+      minimapToolSprite.setFrame(0);
+    });
+    minimapToolSprite.on("pointerover", () => {
+      minimapToolSprite.setFrame(1);
+    });
+    minimapToolSprite.on("pointerdown", () => {
+      minimapToolSprite.setFrame(2);
+    });
+    minimapToolSprite.on("pointerup", () => {
+      this.bus.emit(MINIMAP_TOOL_EVENT);
+      minimapToolSprite.setFrame(1);
+    });
+
     let frame = 0;
     let maxFrame = 5;
     this.bus.on("mapTick", () => {
@@ -464,7 +536,7 @@ export class SceneUI extends Phaser.Scene {
         x: tileSize * 36,
         y: tileSize * 9,
         width: tileSize * 12,
-        height: tileSize * 20,
+        height: tileSize * 12,
 
         tabs: {
           space: { item: 3 },
@@ -558,7 +630,9 @@ export class SceneUI extends Phaser.Scene {
   }
 
   createTabUI(
-    items: { [itemKey: string]: { name: string; texture: string } },
+    items: {
+      [itemKey: string]: { name: string; texture: string; hideOnUI: boolean };
+    },
     toolType:
       | typeof SELECTED_TOOL_TILE
       | typeof SELECTED_TOOL_MACHINE
@@ -590,28 +664,38 @@ export class SceneUI extends Phaser.Scene {
     scrollablePanel
       .setChildrenInteractive({})
       .on("child.click", (child: any) => {
-        this.activeTool = toolType;
-        this.activeToolData = child.getData("item");
-        this.mouseOverlayObject.setTexture(this.activeToolData.texture);
-        this.mouseOverlayObject.setAlpha(0.5);
-        this.mouseOverlayObject.setActive(true);
-        if (this.activeToolData.origin) {
-          this.mouseOverlayObject.setOrigin(
-            (this.activeToolData.origin[0] + 0.5) / this.activeToolData.width,
-            (this.activeToolData.origin[1] + 0.5) / this.activeToolData.height
-          );
+        if (child.getData("available")) {
+          this.activeTool = toolType;
+          this.activeToolData = child.getData("item");
+          this.mouseOverlayObject.setTexture(this.activeToolData.texture);
+          this.mouseOverlayObject.setAlpha(0.5);
+          this.mouseOverlayObject.setActive(true);
+          if (this.activeToolData.origin) {
+            this.mouseOverlayObject.setOrigin(
+              (this.activeToolData.origin[0] + 0.5) / this.activeToolData.width,
+              (this.activeToolData.origin[1] + 0.5) / this.activeToolData.height
+            );
+          } else {
+            this.mouseOverlayObject.setOrigin(0.5, 0.5);
+          }
         } else {
-          this.mouseOverlayObject.setOrigin(0.5, 0.5);
         }
       })
       .on("child.down", (child: any) => {
-        child.getElement("background").setFillStyle(UI_COLOR_DARK);
+        if (child.getData("available")) {
+          child.getElement("background").setFillStyle(UI_COLOR_DARK, 0.1);
+        }
       })
       .on("child.up", (child: any) => {
-        child.getElement("background").setFillStyle(UI_COLOR_NEUTRAL);
+        if (child.getData("available")) {
+          child.getElement("background").setFillStyle(UI_COLOR_HIGHLIGHT, 0.1);
+        }
       })
       .on("child.over", (child: any) => {
-        child.getElement("background").setStrokeStyle(2, 0xffffff);
+        (child.getElement("background") as RoundRectangle).setStrokeStyle(
+          2,
+          child.getData("available") ? 0xffffff : 0xff0000
+        );
       })
       .on("child.out", (child: any) => {
         child.getElement("background").setStrokeStyle();
@@ -620,7 +704,13 @@ export class SceneUI extends Phaser.Scene {
     return scrollablePanel;
   }
 
-  createGrid(items: { [itemKey: string]: { name: string; texture: string } }) {
+  createGrid(items: {
+    [itemKey: string]: {
+      name: string;
+      texture: string;
+      hideOnUI: boolean;
+    };
+  }) {
     // Create table body
     var sizer = this.rexUI.add.fixWidthSizer({
       space: {
@@ -636,39 +726,50 @@ export class SceneUI extends Phaser.Scene {
     const itemsKeys = Object.keys(items);
 
     for (var i = 0; i !== itemsKeys.length; i++) {
-      sizer.add(
-        this.rexUI.add
-          .label({
-            width: tileSize * 3,
-            height: tileSize * 3,
+      const item = items[itemsKeys[i]];
 
-            background: this.rexUI.add.roundRectangle(
-              0,
-              0,
-              0,
-              0,
-              14,
-              UI_COLOR_NEUTRAL
-            ),
-            /*
-          text: this.add.text(0, 0, `${i}`, {
-            ...BASE_TEXT_STYLE,
-            fontSize: 18,
-          }),*/
+      if (item.hideOnUI) continue;
 
-            icon: this.add.image(0, 0, items[itemsKeys[i]].texture),
-            iconSize: tileSize * 2,
+      const icon = this.add.image(0, 0, items[itemsKeys[i]].texture);
 
-            align: "center",
-            space: {
-              left: 0,
-              right: 0,
-              top: 0,
-              bottom: 0,
-            },
-          })
-          .setData("item", items[itemsKeys[i]])
-      );
+      const background = this.rexUI.add
+        .roundRectangle(0, 0, 0, 0, 14)
+        .setFillStyle(UI_COLOR_NEUTRAL, 0.9);
+
+      const label = this.rexUI.add.label({
+        name: `${item.name} label`,
+        width: tileSize * 3,
+        height: tileSize * 3,
+
+        background,
+        icon,
+
+        /*
+      text: this.add.text(0, 0, `${i}`, {
+        ...BASE_TEXT_STYLE,
+        fontSize: 18,
+      }),*/
+
+        iconSize: tileSize * 2,
+
+        align: "center",
+        space: {
+          left: 0,
+          right: 0,
+          top: 0,
+          bottom: 0,
+        },
+      });
+
+      label.setData("item", item);
+      label.setData("available", true);
+
+      label.on(ACTIVATE_ITEM_EVENT, () => {
+        label.setData("available", true);
+        background.setFillStyle(UI_COLOR_HIGHLIGHT, 0.1);
+      });
+
+      sizer.add(label);
     }
 
     return sizer;

@@ -1,5 +1,7 @@
 import Phaser from "phaser";
 
+import amberSand from "../assets/sand-amber.png?url";
+
 export const imageIso = import.meta.glob<{ default: string }>(
   "../assets/*.png",
   { eager: true }
@@ -12,17 +14,15 @@ export const RESOURCES = {
 
   SAND_NORMAL: "sand-normal.png",
   SAND_GLASS: "sand-glass.png",
-  SAND_SHINY_GLASS: "sand-shiny-glass.png",
   SAND_CRUSHED_GLASS: "sand-crushed-glass.png",
+  SAND_SHINY_GLASS: "sand-shiny-glass.png",
+  SAND_CRUSHED_SHINY_GLASS: "sand-crushed-shiny-glass.png",
   SAND_EMERALD: "sand-emerald.png",
   SAND_NORMAL_EMERALD: "sand-normal-emerald.png",
   SAND_CRUSHED_EMERALD: "sand-crushed-emerald.png",
-  SAND_AMBER: "sand-amber.png",
-  SAND_CRUSHED_AMBER: "sand-crushed-amber.png",
+  SAND_AMBER: "sand-amber",
   SAND_COAL: "sand-coal.png",
-  SAND_CRUSHED_COAL: "sand-crushed-coal.png",
   SAND_DIAMOND: "sand-diamond.png",
-  SAND_CRUSHED_DIAMOND: "sand-crushed-diamond.png",
   SAND_TRASH: "sand-trash.png",
 
   MACHINE_NORMAL_EMITTER: "machine-emitter.png",
@@ -58,6 +58,11 @@ export class ScenePreload extends Phaser.Scene {
         imageIso[sprite].default
       );
     }
+
+    this.load.spritesheet("sand-amber", amberSand, {
+      frameWidth: 16,
+      frameHeight: 16,
+    });
   }
 
   create() {

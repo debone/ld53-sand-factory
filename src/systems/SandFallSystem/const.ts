@@ -30,33 +30,29 @@ export const SAND_CHECK_MASK = 0b1000_0000;
 export const SAND_CHECK_SHIFT = 7;
 
 // prettier-ignore
-export const SAND_TYPE_NORMAL =           0b1000_0010;
+export const SAND_TYPE_NORMAL =               0b1000_0010;
 // prettier-ignore
-export const SAND_TYPE_GLASS =            0b1000_0100;
+export const SAND_TYPE_GLASS =                0b1000_0100;
 // prettier-ignore
-export const SAND_TYPE_SHINY_GLASS =      0b1000_0110;
+export const SAND_TYPE_CRUSHED_GLASS =        0b1000_0110;
 // prettier-ignore
-export const SAND_TYPE_CRUSHED_GLASS =    0b1000_1000;
+export const SAND_TYPE_SHINY_GLASS =          0b1000_1000;
 // prettier-ignore
-export const SAND_TYPE_EMERALD =          0b1000_1010;
+export const SAND_TYPE_CRUSHED_SHINY_GLASS =  0b1000_1010;
 // prettier-ignore
-export const SAND_TYPE_NORMAL_EMERALD =   0b1000_1100;
+export const SAND_TYPE_EMERALD =              0b1000_1100;
 // prettier-ignore
-export const SAND_TYPE_CRUSHED_EMERALD =  0b1000_1110;
+export const SAND_TYPE_NORMAL_EMERALD =       0b1000_1110;
 // prettier-ignore
-export const SAND_TYPE_AMBER =            0b1001_0000;
+export const SAND_TYPE_CRUSHED_EMERALD =      0b1001_0000;
 // prettier-ignore
-export const SAND_TYPE_CRUSHED_AMBER =    0b1001_0010;
+export const SAND_TYPE_AMBER =                0b1001_0010;
 // prettier-ignore
-export const SAND_TYPE_COAL =             0b1001_0100;
+export const SAND_TYPE_COAL =                 0b1001_0100;
 // prettier-ignore
-export const SAND_TYPE_CRUSHED_COAL =     0b1001_0110;
+export const SAND_TYPE_DIAMOND =              0b1001_0110;
 // prettier-ignore
-export const SAND_TYPE_DIAMOND =          0b1001_1000;
-// prettier-ignore
-export const SAND_TYPE_CRUSHED_DIAMOND =  0b1001_1010;
-// prettier-ignore
-export const SAND_TYPE_TRASH =            0b1001_1100;
+export const SAND_TYPE_TRASH =                0b1001_1000;
 
 export const VARIANT_MASK = 0b0011_1111_0000_0000;
 export const VARIANT_SHIFT = 8;
@@ -171,23 +167,21 @@ assert(
 export const SAND_TYPES = [
   SAND_TYPE_NORMAL,
   SAND_TYPE_GLASS,
-  SAND_TYPE_SHINY_GLASS,
   SAND_TYPE_CRUSHED_GLASS,
+  SAND_TYPE_SHINY_GLASS,
+  SAND_TYPE_CRUSHED_SHINY_GLASS,
   SAND_TYPE_EMERALD,
   SAND_TYPE_NORMAL_EMERALD,
   SAND_TYPE_CRUSHED_EMERALD,
   SAND_TYPE_AMBER,
-  SAND_TYPE_CRUSHED_AMBER,
   SAND_TYPE_COAL,
-  SAND_TYPE_CRUSHED_COAL,
   SAND_TYPE_DIAMOND,
-  SAND_TYPE_CRUSHED_DIAMOND,
   SAND_TYPE_TRASH,
 ] as const;
 
 export const SAND_TYPE_MINIMAP_COLORS = [
-  0xe6904e, 0xe6904e, 0xe6904e, 0xe6904e, 0xe6904e, 0xe6904e, 0xe6904e,
-  0xe6904e, 0xe6904e, 0xe6904e, 0xe6904e, 0xe6904e, 0xe6904e, 0xe6904e,
+  0xfbb954, 0xc7dcd0, 0x9babb2, 0xa884f3, 0x905ea9, 0x30e1b9, 0x0eaf9b,
+  0x0b8a8f, 0xfb6b1d, 0x625565, 0xffffff, 0xe6904e,
 ];
 
 export const SAND_TYPE_RENDER_CALL = [
@@ -198,11 +192,15 @@ export const SAND_TYPE_RENDER_CALL = [
   (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
     throw `No render for this sand type yet`;
   },
+  // SAND_TYPE_CRUSHED_GLASS
+  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
+    throw `No render for this sand type yet`;
+  },
   // SAND_TYPE_SHINY_GLASS
   (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
     throw `No render for this sand type yet`;
   },
-  // SAND_TYPE_CRUSHED_GLASS
+  // SAND_TYPE_CRUSHED_SHINY_GLASS
   (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
     throw `No render for this sand type yet`;
   },
@@ -222,23 +220,11 @@ export const SAND_TYPE_RENDER_CALL = [
   (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
     throw `No render for this sand type yet`;
   },
-  // SAND_TYPE_CRUSHED_AMBER
-  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
-    throw `No render for this sand type yet`;
-  },
   // SAND_TYPE_COAL
   (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
     throw `No render for this sand type yet`;
   },
-  // SAND_TYPE_CRUSHED_COAL
-  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
-    throw `No render for this sand type yet`;
-  },
   // SAND_TYPE_DIAMOND
-  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
-    throw `No render for this sand type yet`;
-  },
-  // SAND_TYPE_CRUSHED_DIAMOND
   (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
     throw `No render for this sand type yet`;
   },
@@ -305,11 +291,15 @@ export const PIXEL_TYPE_CRUSHER_SHIFTED = GetPixelType(PIXEL_TYPE_CRUSHER);
 export const SAND_TYPE_NORMAL_SHIFTED = GetPixelType(SAND_TYPE_NORMAL);
 
 export const SAND_TYPE_GLASS_SHIFTED = GetPixelType(SAND_TYPE_GLASS);
+export const SAND_TYPE_CRUSHED_GLASS_SHIFTED = GetPixelType(
+  SAND_TYPE_CRUSHED_GLASS
+);
+
 export const SAND_TYPE_SHINY_GLASS_SHIFTED = GetPixelType(
   SAND_TYPE_SHINY_GLASS
 );
-export const SAND_TYPE_CRUSHED_GLASS_SHIFTED = GetPixelType(
-  SAND_TYPE_CRUSHED_GLASS
+export const SAND_TYPE_CRUSHED_SHINY_GLASS_SHIFTED = GetPixelType(
+  SAND_TYPE_CRUSHED_SHINY_GLASS
 );
 
 export const SAND_TYPE_EMERALD_SHIFTED = GetPixelType(SAND_TYPE_EMERALD);
@@ -321,31 +311,22 @@ export const SAND_TYPE_CRUSHED_EMERALD_SHIFTED = GetPixelType(
 );
 
 export const SAND_TYPE_AMBER_SHIFTED = GetPixelType(SAND_TYPE_AMBER);
-export const SAND_TYPE_CRUSHED_AMBER_SHIFTED = GetPixelType(
-  SAND_TYPE_CRUSHED_AMBER
-);
 
 export const SAND_TYPE_COAL_SHIFTED = GetPixelType(SAND_TYPE_COAL);
-export const SAND_TYPE_CRUSHED_COAL_SHIFTED = GetPixelType(
-  SAND_TYPE_CRUSHED_COAL
-);
 
 export const SAND_TYPE_DIAMOND_SHIFTED = GetPixelType(SAND_TYPE_DIAMOND);
-export const SAND_TYPE_CRUSHED_DIAMOND_SHIFTED = GetPixelType(
-  SAND_TYPE_CRUSHED_DIAMOND
-);
 
 export const SAND_TYPE_TRASH_SHIFTED = GetPixelType(SAND_TYPE_TRASH);
 
 //export const DUPLICATER_MACHINE = "duplicater-machine";
 
-export const TileTypes = [
+export const UITileTypes = [
   PIXEL_TYPE_TILE_WOOD,
   PIXEL_TYPE_TILE_STEEL,
   PIXEL_TYPE_TILE_LOCK,
 ] as const;
 
-export type TileType = (typeof TileTypes)[number];
+export type TileType = (typeof UITileTypes)[number];
 
 export const TILES = {
   [PIXEL_TYPE_TILE_WOOD]: {
@@ -354,6 +335,9 @@ export const TILES = {
     height: 1,
     texture: RESOURCES.TILE_WOOD,
     pixelType: PIXEL_TYPE_TILE_WOOD,
+    cost: 15,
+    unlocksAt: 0,
+    hideOnUI: false,
   },
   [PIXEL_TYPE_TILE_STEEL]: {
     name: "Steel tile",
@@ -361,6 +345,9 @@ export const TILES = {
     height: 1,
     texture: RESOURCES.TILE_STEEL,
     pixelType: PIXEL_TYPE_TILE_STEEL,
+    cost: 100,
+    unlocksAt: 1000,
+    hideOnUI: false,
   },
   [PIXEL_TYPE_TILE_LOCK]: {
     name: "Lock tile",
@@ -368,26 +355,73 @@ export const TILES = {
     height: 1,
     texture: RESOURCES.TILE_WARNING,
     pixelType: PIXEL_TYPE_TILE_LOCK,
+    cost: 250,
+    unlocksAt: 5000,
+    hideOnUI: false,
   },
 };
 
-export const SandTypes = [
+export const UISandTypes = [
   SAND_TYPE_NORMAL,
   SAND_TYPE_GLASS,
-  SAND_TYPE_SHINY_GLASS,
   SAND_TYPE_CRUSHED_GLASS,
+  SAND_TYPE_SHINY_GLASS,
+  SAND_TYPE_CRUSHED_SHINY_GLASS,
   SAND_TYPE_EMERALD,
   SAND_TYPE_NORMAL_EMERALD,
   SAND_TYPE_CRUSHED_EMERALD,
   SAND_TYPE_AMBER,
-  SAND_TYPE_CRUSHED_AMBER,
   SAND_TYPE_COAL,
-  SAND_TYPE_CRUSHED_COAL,
   SAND_TYPE_DIAMOND,
-  SAND_TYPE_CRUSHED_DIAMOND,
+  SAND_TYPE_TRASH,
 ] as const;
 
-export type SandType = (typeof SandTypes)[number];
+export type SandType = (typeof UISandTypes)[number];
+
+export const SAND_VALUE = [
+  1, // SAND_TYPE_NORMAL
+  10, // SAND_TYPE_GLASS,
+  100, // SAND_TYPE_CRUSHED_GLASS,
+  250, // SAND_TYPE_SHINY_GLASS,
+  1500, // SAND_TYPE_CRUSHED_SHINY_GLASS,
+  10_000, // SAND_TYPE_EMERALD,
+  15_000, // SAND_TYPE_NORMAL_EMERALD,
+  50_000, // SAND_TYPE_CRUSHED_EMERALD,
+  50, // SAND_TYPE_AMBER,
+  250, // SAND_TYPE_COAL,
+  50_000, //SAND_TYPE_DIAMOND,
+  1, // SAND_TYPE_TRASH
+];
+
+export const SAND_UNLOCK = [
+  0, // SAND_TYPE_NORMAL
+  100, // SAND_TYPE_GLASS,
+  -1, // SAND_TYPE_CRUSHED_GLASS,
+  5000, // SAND_TYPE_SHINY_GLASS,
+  -1, // SAND_TYPE_CRUSHED_SHINY_GLASS,
+  25_000, // SAND_TYPE_EMERALD,
+  -1, // SAND_TYPE_NORMAL_EMERALD,
+  -1, // SAND_TYPE_CRUSHED_EMERALD,
+  -1, // SAND_TYPE_AMBER,
+  -1, // SAND_TYPE_COAL,
+  -1, //SAND_TYPE_DIAMOND,
+  -11, // SAND_TYPE_TRASH
+];
+
+export const HAS_SEEN = [
+  true, // SAND_TYPE_NORMAL
+  false, // SAND_TYPE_GLASS
+  false, // SAND_TYPE_CRUSHED_GLASS
+  false, // SAND_TYPE_SHINY_GLASS
+  false, // SAND_TYPE_CRUSHED_SHINY_GLASS
+  false, // SAND_TYPE_EMERALD
+  false, // SAND_TYPE_NORMAL_EMERALD
+  false, // SAND_TYPE_CRUSHED_EMERALD
+  false, // SAND_TYPE_AMBER
+  false, // SAND_TYPE_COAL
+  false, // SAND_TYPE_DIAMOND
+  false,
+];
 
 export const SANDS = {
   [SAND_TYPE_NORMAL]: {
@@ -396,8 +430,10 @@ export const SANDS = {
     height: 1,
     texture: RESOURCES.SAND_NORMAL,
     pixelType: SAND_TYPE_NORMAL,
-    cost: 1,
+    value: SAND_VALUE[GetSandType(SAND_TYPE_NORMAL)],
+    cost: SAND_VALUE[GetSandType(SAND_TYPE_NORMAL)],
     unlocksAt: 0,
+    hideOnUI: false,
   },
   [SAND_TYPE_GLASS]: {
     name: "Glass",
@@ -405,15 +441,10 @@ export const SANDS = {
     height: 1,
     texture: RESOURCES.SAND_GLASS,
     pixelType: SAND_TYPE_GLASS,
-    cost: 10,
+    value: SAND_VALUE[GetSandType(SAND_TYPE_GLASS)],
+    cost: SAND_VALUE[GetSandType(SAND_TYPE_GLASS)],
     unlocksAt: 100,
-  },
-  [SAND_TYPE_SHINY_GLASS]: {
-    name: "Shiny glass",
-    width: 1,
-    height: 1,
-    texture: RESOURCES.SAND_SHINY_GLASS,
-    pixelType: SAND_TYPE_SHINY_GLASS,
+    hideOnUI: false,
   },
   [SAND_TYPE_CRUSHED_GLASS]: {
     name: "Crushed glass",
@@ -421,6 +452,28 @@ export const SANDS = {
     height: 1,
     texture: RESOURCES.SAND_CRUSHED_GLASS,
     pixelType: SAND_TYPE_CRUSHED_GLASS,
+    value: SAND_VALUE[GetSandType(SAND_TYPE_CRUSHED_GLASS)],
+    hideOnUI: true,
+  },
+  [SAND_TYPE_SHINY_GLASS]: {
+    name: "Shiny glass",
+    width: 1,
+    height: 1,
+    texture: RESOURCES.SAND_SHINY_GLASS,
+    pixelType: SAND_TYPE_SHINY_GLASS,
+    unlocksAt: 5000,
+    value: SAND_VALUE[GetSandType(SAND_TYPE_SHINY_GLASS)],
+    cost: SAND_VALUE[GetSandType(SAND_TYPE_SHINY_GLASS)],
+    hideOnUI: false,
+  },
+  [SAND_TYPE_CRUSHED_SHINY_GLASS]: {
+    name: "Crushed shiny glass",
+    width: 1,
+    height: 1,
+    texture: RESOURCES.SAND_CRUSHED_SHINY_GLASS,
+    pixelType: SAND_TYPE_CRUSHED_SHINY_GLASS,
+    value: SAND_VALUE[GetSandType(SAND_TYPE_CRUSHED_SHINY_GLASS)],
+    hideOnUI: true,
   },
   [SAND_TYPE_EMERALD]: {
     name: "Emerald",
@@ -428,6 +481,10 @@ export const SANDS = {
     height: 1,
     texture: RESOURCES.SAND_EMERALD,
     pixelType: SAND_TYPE_EMERALD,
+    unlocksAt: 25000,
+    value: SAND_VALUE[GetSandType(SAND_TYPE_EMERALD)],
+    cost: SAND_VALUE[GetSandType(SAND_TYPE_EMERALD)],
+    hideOnUI: false,
   },
   [SAND_TYPE_NORMAL_EMERALD]: {
     name: "Normal sand with emerald",
@@ -435,6 +492,8 @@ export const SANDS = {
     height: 1,
     texture: RESOURCES.SAND_NORMAL_EMERALD,
     pixelType: SAND_TYPE_NORMAL_EMERALD,
+    value: SAND_VALUE[GetSandType(SAND_TYPE_NORMAL_EMERALD)],
+    hideOnUI: true,
   },
   [SAND_TYPE_CRUSHED_EMERALD]: {
     name: "Crushed emerald",
@@ -442,6 +501,8 @@ export const SANDS = {
     height: 1,
     texture: RESOURCES.SAND_CRUSHED_EMERALD,
     pixelType: SAND_TYPE_CRUSHED_EMERALD,
+    value: SAND_VALUE[GetSandType(SAND_TYPE_CRUSHED_EMERALD)],
+    hideOnUI: true,
   },
   [SAND_TYPE_AMBER]: {
     name: "Amber",
@@ -449,13 +510,8 @@ export const SANDS = {
     height: 1,
     texture: RESOURCES.SAND_AMBER,
     pixelType: SAND_TYPE_AMBER,
-  },
-  [SAND_TYPE_CRUSHED_AMBER]: {
-    name: "Crushed amber",
-    width: 1,
-    height: 1,
-    texture: RESOURCES.SAND_CRUSHED_AMBER,
-    pixelType: SAND_TYPE_CRUSHED_AMBER,
+    value: SAND_VALUE[GetSandType(SAND_TYPE_AMBER)],
+    hideOnUI: true,
   },
   [SAND_TYPE_COAL]: {
     name: "Coal",
@@ -463,13 +519,8 @@ export const SANDS = {
     height: 1,
     texture: RESOURCES.SAND_COAL,
     pixelType: SAND_TYPE_COAL,
-  },
-  [SAND_TYPE_CRUSHED_COAL]: {
-    name: "Crushed coal",
-    width: 1,
-    height: 1,
-    texture: RESOURCES.SAND_CRUSHED_COAL,
-    pixelType: SAND_TYPE_CRUSHED_COAL,
+    value: SAND_VALUE[GetSandType(SAND_TYPE_COAL)],
+    hideOnUI: true,
   },
   [SAND_TYPE_DIAMOND]: {
     name: "Diamond",
@@ -477,13 +528,8 @@ export const SANDS = {
     height: 1,
     texture: RESOURCES.SAND_DIAMOND,
     pixelType: SAND_TYPE_DIAMOND,
-  },
-  [SAND_TYPE_CRUSHED_DIAMOND]: {
-    name: "Crushed diamond",
-    width: 1,
-    height: 1,
-    texture: RESOURCES.SAND_CRUSHED_DIAMOND,
-    pixelType: SAND_TYPE_CRUSHED_DIAMOND,
+    value: SAND_VALUE[GetSandType(SAND_TYPE_DIAMOND)],
+    hideOnUI: true,
   },
   [SAND_TYPE_TRASH]: {
     name: "Trash",
@@ -491,6 +537,8 @@ export const SANDS = {
     height: 1,
     texture: RESOURCES.SAND_TRASH,
     pixelType: SAND_TYPE_TRASH,
+    value: SAND_VALUE[GetSandType(SAND_TYPE_TRASH)],
+    hideOnUI: true,
   },
 };
 

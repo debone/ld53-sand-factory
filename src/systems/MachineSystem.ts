@@ -52,7 +52,9 @@ export const MACHINES = Object.freeze({
     pixelType: PIXEL_TYPE_DUPLICATER,
     origin: [1, 0],
     mask: [[1, 1, 1]],
-    canUserAdd: true,
+    unlocksAt: 100,
+    cost: 250,
+    hideOnUI: false,
   },
   [MACHINE_CRUSHER]: {
     name: "Crusher",
@@ -66,7 +68,9 @@ export const MACHINES = Object.freeze({
       [1, 0, 0, 0, 1],
       [1, 1, 1, 1, 1],
     ],
-    canUserAdd: true,
+    unlocksAt: 5000,
+    cost: 2500,
+    hideOnUI: false,
   },
   [MACHINE_NORMAL_EMITTER]: {
     name: "Emitter",
@@ -76,7 +80,7 @@ export const MACHINES = Object.freeze({
     pixelType: PIXEL_TYPE_NORMAL_EMITTER,
     origin: [0, 0],
     mask: [[1]],
-    canUserAdd: false,
+    hideOnUI: false,
   },
   [MACHINE_COLLECTOR]: {
     name: "Collector",
@@ -89,7 +93,9 @@ export const MACHINES = Object.freeze({
       [1, 0, 0, 0, 1],
       [1, 1, 1, 1, 1],
     ],
-    canUserAdd: false,
+    unlocksAt: 150000,
+    costs: 50000,
+    hideOnUI: false,
   },
 });
 

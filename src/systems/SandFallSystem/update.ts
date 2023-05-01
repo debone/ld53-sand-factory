@@ -150,7 +150,8 @@ const PIXEL_TYPE_COLLECTOR_ACTIONS = (
         iteration
     ) {
       sandWorld[curr + DIR_COLLECTOR[direction][0]] = PIXEL_TYPE_AIR;
-      totalSand.count += 1;
+
+      totalSand.add(1);
     }
 
     if (
@@ -159,7 +160,7 @@ const PIXEL_TYPE_COLLECTOR_ACTIONS = (
         iteration
     ) {
       sandWorld[curr + DIR_COLLECTOR[direction][1]] = PIXEL_TYPE_AIR;
-      totalSand.count += 1;
+      totalSand.add(1);
     }
 
     if (
@@ -168,7 +169,7 @@ const PIXEL_TYPE_COLLECTOR_ACTIONS = (
         iteration
     ) {
       sandWorld[curr + DIR_COLLECTOR[direction][2]] = PIXEL_TYPE_AIR;
-      totalSand.count += 1;
+      totalSand.add(1);
     }
   }
 };

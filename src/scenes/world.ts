@@ -5,6 +5,7 @@ import RexUIPlugin from "phaser3-rex-plugins/templates/ui/ui-plugin.js";
 import SandFallSystem from "../systems/SandFallSystem/system";
 import { sandWorldHeight, sandWorldWidth, tileSize } from "../consts";
 import MachineSystem from "../systems/MachineSystem";
+import { MINIMAP_TOOL_EVENT } from "../systems/consts";
 
 export let largeZoom = false;
 
@@ -86,7 +87,7 @@ export class SceneWorld extends Phaser.Scene {
 
     this.cameras.main.ignore(this.sandFallSystem.rt);
 
-    this.cursors.space.on("up", () => {
+    const zoomChange = () => {
       if (largeZoom === false) {
         this.mapCamera.setScroll(0, 0);
         this.controls.stop();
@@ -95,7 +96,9 @@ export class SceneWorld extends Phaser.Scene {
         this.controls.start();
         largeZoom = false;
       }
-    });
+    };
+    this.cursors.space.on("up", zoomChange);
+    this.bus.on(MINIMAP_TOOL_EVENT, zoomChange);
 
     //  const rt = this.add.renderTexture(32, 32, 64, 64);
 
