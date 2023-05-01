@@ -6,6 +6,8 @@ export const LEFT = 3;
 export const directions = [UP, RIGHT, DOWN, LEFT] as const;
 export type Direction = (typeof directions)[number];
 
+export const COLLECTED_SAND_EVENT = "collected-sand";
+
 export const ADD_SAND_EVENT = "add-sand";
 export const ADD_MACHINE_EVENT = "add-machine";
 export const ADD_TILE_EVENT = "add-tile";

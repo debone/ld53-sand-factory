@@ -2,6 +2,7 @@
 
 import { assert } from "../../lib/assert";
 import { RESOURCES } from "../../scenes/preload";
+import { VARIANT_MACHINE_CORE } from "../MachineSystem";
 import { Direction } from "../consts";
 
 export const STEP_MARKER_MASK = 0b0001;
@@ -55,7 +56,8 @@ export const PIXEL_TYPE_MINIMAP_COLORS = [
 ];
 
 export const PIXEL_TYPE_RENDER_CALL = [
-  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
+  //(x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
+  () => {
     throw "Please never call me";
   },
   (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
@@ -74,7 +76,7 @@ export const PIXEL_TYPE_RENDER_CALL = [
     direction: Direction,
     variant: number
   ) => {
-    if (variant === 0) {
+    if (variant === VARIANT_MACHINE_CORE) {
       rt.batchDraw(
         MACHINE_ASSETS[MACHINE_NORMAL_EMITTER_ASSET_POS][direction],
         x * 16 + 8,
@@ -89,7 +91,7 @@ export const PIXEL_TYPE_RENDER_CALL = [
     direction: Direction,
     variant: number
   ) => {
-    if (variant === 0) {
+    if (variant === VARIANT_MACHINE_CORE) {
       rt.batchDraw(
         MACHINE_ASSETS[MACHINE_COLLECTOR_ASSET_POS][direction],
         x * 16 + 8,
@@ -104,7 +106,7 @@ export const PIXEL_TYPE_RENDER_CALL = [
     direction: Direction,
     variant: number
   ) => {
-    if (variant === 0) {
+    if (variant === VARIANT_MACHINE_CORE) {
       rt.batchDraw(
         MACHINE_ASSETS[MACHINE_DUPLICATER_ASSET_POS][direction],
         x * 16 + 8,
@@ -119,7 +121,7 @@ export const PIXEL_TYPE_RENDER_CALL = [
     direction: Direction,
     variant: number
   ) => {
-    if (variant === 0) {
+    if (variant === VARIANT_MACHINE_CORE) {
       rt.batchDraw(
         MACHINE_ASSETS[MACHINE_CRUSHER_ASSET_POS][direction],
         x * 16 + 8,
@@ -129,21 +131,9 @@ export const PIXEL_TYPE_RENDER_CALL = [
   },
 ];
 
-export const PIXEL_TYPE_ACTION_CALL = [
-  () => {},
-  () => {},
-  () => {},
-  () => {},
-  () => {},
-  () => {},
-  () => {},
-  () => {},
-];
-
 assert(
   PIXEL_TYPES.length === PIXEL_TYPE_MINIMAP_COLORS.length &&
-    PIXEL_TYPES.length === PIXEL_TYPE_RENDER_CALL.length &&
-    PIXEL_TYPES.length === PIXEL_TYPE_ACTION_CALL.length,
+    PIXEL_TYPES.length === PIXEL_TYPE_RENDER_CALL.length,
   "PIXEL_TYPES, PIXEL_TYPE_MINIMAP_COLORS, PIXEL_TYPE_RENDER_CALL, PIXEL_TYPE_ACTION_CALL must have the same length"
 );
 
@@ -177,6 +167,8 @@ export const GetSandType = (SAND_TYPE: number) =>
 export const IsSand = (PIXEL: number) =>
   (PIXEL & SAND_CHECK_MASK) >> SAND_CHECK_SHIFT;
 
+export const CleanIteration = (PIXEL: number) => (PIXEL >> 1) << 1;
+
 export const IsSandType = (PIXEL: number, SAND_TYPE: number) =>
   IsSand(PIXEL) && GetPixelType(PIXEL) === SAND_TYPE;
 
@@ -202,9 +194,16 @@ export const PIXEL_TYPE_TILE_STEEL_SHIFTED = GetPixelType(
   PIXEL_TYPE_TILE_STEEL
 );
 export const PIXEL_TYPE_TILE_LOCK_SHIFTED = GetPixelType(PIXEL_TYPE_TILE_LOCK);
+
+export const PIXEL_TYPE_NORMAL_EMITTER_SHIFTED = GetPixelType(
+  PIXEL_TYPE_NORMAL_EMITTER
+);
+export const PIXEL_TYPE_COLLECTOR_SHIFTED = GetPixelType(PIXEL_TYPE_COLLECTOR);
+
 export const PIXEL_TYPE_DUPLICATOR_SHIFTED = GetPixelType(
   PIXEL_TYPE_DUPLICATER
 );
+export const PIXEL_TYPE_CRUSHER_SHIFTED = GetPixelType(PIXEL_TYPE_CRUSHER);
 
 export const SAND_TYPE_NORMAL_SHIFTED = GetPixelType(SAND_TYPE_NORMAL);
 

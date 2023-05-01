@@ -1,46 +1,31 @@
-import {
-  GAME_CONFIG,
-  sandWorldHeight,
-  sandWorldWidth,
-  tileSize,
-} from "../../consts";
-import PhaserGamebus from "../../gamebus";
+import { sandWorldHeight, sandWorldWidth, tileSize } from "../../consts";
 import { RESOURCES } from "../../scenes/preload";
 import { SceneWorld } from "../../scenes/world";
-import { MachineMeta, MachineType } from "../MachineSystem";
+import { MachineMeta, VARIANT_MACHINE_PART } from "../MachineSystem";
 import {
   ADD_MACHINE_EVENT,
   ADD_SAND_EVENT,
   ADD_TILE_EVENT,
-  Direction,
-  UP,
   DOWN,
+  Direction,
   LEFT,
   RIGHT,
+  UP,
 } from "../consts";
 import {
+  GetPixelDirection,
   GetPixelType,
+  GetPixelVariant,
+  GetSandType,
   IsSand,
-  IsSandType,
   PIXEL_TYPE_AIR_SHIFTED,
-  SAND_TYPE_NORMAL_SHIFTED,
-  PIXEL_TYPE_AIR,
-  PIXEL_TYPE_DUPLICATER,
-  SAND_CHECK_SHIFT,
-  SAND_TYPE_NORMAL,
-  STEP_MARKER_EVEN,
-  STEP_MARKER_MASK,
-  STEP_MARKER_ODD,
   PIXEL_TYPE_MINIMAP_COLORS,
   PIXEL_TYPE_RENDER_CALL,
-  SAND_TYPE_RENDER_CALL,
-  SAND_CHECK_MASK,
   SAND_TYPE_MINIMAP_COLORS,
-  GetSandType,
-  GetPixelVariant,
-  GetPixelDirection,
-  SetPixelVariant,
+  SAND_TYPE_NORMAL,
+  SAND_TYPE_RENDER_CALL,
   SetPixelDirection,
+  SetPixelVariant,
 } from "./const";
 import { core, sandWorld } from "./update";
 
@@ -56,13 +41,13 @@ class SandFallSystem {
 
     this.graphics.setVisible(false).setScale(2);
 
-    sandWorld[10 + 10 * sandWorldWidth] = SAND_TYPE_NORMAL;
-    sandWorld[10 + 11 * sandWorldWidth] = SAND_TYPE_NORMAL;
-    sandWorld[10 + 12 * sandWorldWidth] = SAND_TYPE_NORMAL;
+    //sandWorld[10 + 10 * sandWorldWidth] = SAND_TYPE_NORMAL;
+    //sandWorld[10 + 11 * sandWorldWidth] = SAND_TYPE_NORMAL;
+    //sandWorld[10 + 12 * sandWorldWidth] = SAND_TYPE_NORMAL;
 
-    sandWorld[20 + 10 * sandWorldWidth] = PIXEL_TYPE_DUPLICATER;
-    sandWorld[17 + 12 * sandWorldWidth] = PIXEL_TYPE_DUPLICATER;
-    sandWorld[14 + 15 * sandWorldWidth] = PIXEL_TYPE_DUPLICATER;
+    //    sandWorld[20 + 10 * sandWorldWidth] = PIXEL_TYPE_DUPLICATER;
+    //  sandWorld[17 + 12 * sandWorldWidth] = PIXEL_TYPE_DUPLICATER;
+    // sandWorld[14 + 15 * sandWorldWidth] = PIXEL_TYPE_DUPLICATER;
 
     this.rt = scene.add
       .renderTexture(
@@ -107,7 +92,7 @@ class SandFallSystem {
               ] =
                 dx === originX && dy === originY
                   ? pixelType
-                  : SetPixelVariant(pixelType, 1);
+                  : SetPixelVariant(pixelType, VARIANT_MACHINE_PART);
             }
           }
         } else if (direction === DOWN) {
@@ -126,7 +111,7 @@ class SandFallSystem {
               ] =
                 width - 1 - dx === originX && height - 1 - dy === originY
                   ? pixelType
-                  : SetPixelVariant(pixelType, 1);
+                  : SetPixelVariant(pixelType, VARIANT_MACHINE_PART);
             }
           }
         } else if (direction === LEFT) {
@@ -141,7 +126,7 @@ class SandFallSystem {
               ] =
                 dx === originY && dy === originX
                   ? pixelType
-                  : SetPixelVariant(pixelType, 1);
+                  : SetPixelVariant(pixelType, VARIANT_MACHINE_PART);
             }
           }
         } else if (direction === RIGHT) {
@@ -161,7 +146,7 @@ class SandFallSystem {
               ] =
                 height - 1 - dx === originY && dy === originX
                   ? pixelType
-                  : SetPixelVariant(pixelType, 1);
+                  : SetPixelVariant(pixelType, VARIANT_MACHINE_PART);
             }
           }
         }

@@ -9,6 +9,9 @@ import {
 } from "./SandFallSystem/const";
 import { ADD_MACHINE_EVENT, Direction, UP } from "./consts";
 
+export const VARIANT_MACHINE_CORE = 0;
+export const VARIANT_MACHINE_PART = 1;
+
 export const MACHINE_DUPLICATER = "machine-duplicater";
 export const MACHINE_CRUSHER = "machine-crusher";
 export const MACHINE_NORMAL_EMITTER = "machine-normal-emitter";
@@ -21,6 +24,7 @@ export type MachineMeta = {
   texture: string;
   pixelType: number;
   origin: [number, number];
+  mask: number[][];
 };
 
 export const MachineTypes = [
@@ -152,6 +156,14 @@ class MachineSystem {
         machineType: MachineMeta,
         direction: Direction
       ) => {
+        console.log({
+          type: PixelTypeMachineMap[machineType.pixelType],
+          x,
+          y,
+          width: machineType.width,
+          height: machineType.height,
+          direction,
+        });
         this.machines.push({
           type: PixelTypeMachineMap[machineType.pixelType],
           x,

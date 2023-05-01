@@ -1,10 +1,9 @@
-import { Display } from "phaser";
 import { Pane } from "tweakpane";
 import { SceneWorld } from "./world";
 //import { SceneWorld, tileSizeHeight, tileSizeWidth } from "./world";
 
-type Color = Display.Color;
-const Color = Display.Color;
+//type Color = Display.Color;
+//const Color = Display.Color;
 
 export const params = {
   fps: 0,
@@ -40,9 +39,9 @@ export class SceneDebug extends Phaser.Scene {
   }
 
   update() {
-    const worldPoint = this.input.activePointer.positionToCamera(
+    /*const worldPoint = this.input.activePointer.positionToCamera(
       this.sceneWorld.cameras.main
-    ) as Phaser.Math.Vector2;
+    ) as Phaser.Math.Vector2;*/
 
     //    console.log(this.map.getTileAt(pointerTile.x, pointerTile.y));
 

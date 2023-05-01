@@ -54,6 +54,8 @@ export const SELECTED_TOOL_INSPECTOR = "selected-tool-inspect";
 export const SELECTED_TOOL_ERASER = "selected-tool-eraser";
 export const SELECTED_TOOL_SWEEP = "selected-tool-sweep";
 
+export let totalSand = { count: 0, lastUpdate: 0 };
+
 export class SceneUI extends Phaser.Scene {
   declare rexUI: RexUIPlugin;
   declare bus: Phaser.Events.EventEmitter;
@@ -137,10 +139,10 @@ export class SceneUI extends Phaser.Scene {
 
     this.rt.draw("ui-bg", tileSize * 32, tileSize * 1);
 
-    this.add.text(
+    this.counterText = this.add.text(
       tileSize * 33,
       tileSize * 2,
-      "1,234,567,890",
+      "0",
       BASE_TEXT_STYLE
     );
 
@@ -181,6 +183,8 @@ export class SceneUI extends Phaser.Scene {
     this.createUIElements();
     this.createTabs();
   }
+
+  declare counterText: Phaser.GameObjects.Text;
 
   declare keyE: Phaser.Input.Keyboard.Key;
 
@@ -574,6 +578,11 @@ export class SceneUI extends Phaser.Scene {
 
     if (this.keyE.isDown) {
       this.bus.emit(ADD_SAND_EVENT, this.tileX, this.tileY);
+    }
+
+    if (totalSand.count !== totalSand.lastUpdate) {
+      this.counterText.setText(totalSand.count.toString());
+      totalSand.lastUpdate = totalSand.count;
     }
 
     this.drawMark(
