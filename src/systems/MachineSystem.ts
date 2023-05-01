@@ -2,6 +2,7 @@ import { RESOURCES } from "../scenes/preload";
 import { SceneWorld } from "../scenes/world";
 import {
   MACHINE_ASSETS,
+  PIXEL_TYPE_BURNER,
   PIXEL_TYPE_COLLECTOR,
   PIXEL_TYPE_CRUSHER,
   PIXEL_TYPE_DUPLICATER as PIXEL_TYPE_DUPLICATER,
@@ -16,6 +17,7 @@ export const MACHINE_DUPLICATER = "machine-duplicater";
 export const MACHINE_CRUSHER = "machine-crusher";
 export const MACHINE_NORMAL_EMITTER = "machine-normal-emitter";
 export const MACHINE_COLLECTOR = "machine-collector";
+export const MACHINE_BURNER = "machine-burner";
 
 export type MachineMeta = {
   name: string;
@@ -32,6 +34,7 @@ export const MachineTypes = [
   MACHINE_CRUSHER,
   MACHINE_NORMAL_EMITTER,
   MACHINE_COLLECTOR,
+  MACHINE_BURNER,
 ] as const;
 export type MachineType = (typeof MachineTypes)[number];
 
@@ -40,6 +43,7 @@ export const PixelTypeMachineMap: { [key: number]: MachineType } = {
   [PIXEL_TYPE_CRUSHER]: MACHINE_CRUSHER,
   [PIXEL_TYPE_NORMAL_EMITTER]: MACHINE_NORMAL_EMITTER,
   [PIXEL_TYPE_COLLECTOR]: MACHINE_COLLECTOR,
+  [PIXEL_TYPE_BURNER]: MACHINE_BURNER,
 };
 
 // Remember to add the ASSETS on the `SandFallSystem/const.ts` file
@@ -121,6 +125,25 @@ A machine that crushes sand into glass, and everything else.`,
 Ain't nobody got time for that. GG.
 `,
   },
+  [MACHINE_BURNER]: {
+    name: "Burner",
+    width: 1,
+    height: 1,
+    texture: RESOURCES.MACHINE_BURNER,
+    pixelType: PIXEL_TYPE_BURNER,
+    origin: [0, 0],
+    mask: [[1]],
+    unlocksAt: 80_000,
+    cost: 10_000,
+    hideOnUI: false,
+    description: `
+[img=${RESOURCES.MACHINE_BURNER}]
+
+[i]Burner[/i]
+[i]Cost:[/i] 10,000
+[i]Unlocks at:[/i] 80,000
+`,
+  },
 });
 
 export const MACHINE_ACTIONS = [];
@@ -143,15 +166,6 @@ class MachineSystem {
   constructor(scene: SceneWorld) {
     this.scene = scene;
     this.machines = [];
-
-    this.machines.push({
-      type: MACHINE_DUPLICATER,
-      x: 0,
-      y: 0,
-      width: 3,
-      height: 1,
-      direction: UP,
-    });
 
     // MACHINE_ASSETS
     const machines = Object.values(MACHINES);

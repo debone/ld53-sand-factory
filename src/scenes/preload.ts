@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 
 import amberSand from "../assets/sand-amber.png?url";
+import machineBurner from "../assets/machine-burner.png?url";
 
 export const imageIso = import.meta.glob<{ default: string }>(
   "../assets/*.png",
@@ -29,6 +30,7 @@ export const RESOURCES = {
   MACHINE_COLLECTOR: "machine-collector.png",
   MACHINE_DUPLICATER: "machine-duplicater.png",
   MACHINE_CRUSHER: "machine-crusher.png",
+  MACHINE_BURNER: "machine-burner",
 } as const;
 
 export const RESOURCES_INDEX = Object.keys(RESOURCES).reduce(
@@ -60,6 +62,11 @@ export class ScenePreload extends Phaser.Scene {
     }
 
     this.load.spritesheet("sand-amber", amberSand, {
+      frameWidth: 16,
+      frameHeight: 16,
+    });
+
+    this.load.spritesheet("machine-burner", machineBurner, {
       frameWidth: 16,
       frameHeight: 16,
     });

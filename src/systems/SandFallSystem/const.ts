@@ -2,6 +2,7 @@
 
 // 0000_0000_0000_0000_0000_0000_0000_0000
 
+import { sandWorldWidth } from "../../consts";
 import { assert } from "../../lib/assert";
 import { RESOURCES } from "../../scenes/preload";
 import { VARIANT_MACHINE_CORE } from "../MachineSystem";
@@ -25,6 +26,8 @@ export const PIXEL_TYPE_COLLECTOR = 0b0000_1100;
 
 export const PIXEL_TYPE_DUPLICATER = 0b0000_1110;
 export const PIXEL_TYPE_CRUSHER = 0b0001_0000;
+
+export const PIXEL_TYPE_BURNER = 0b0001_0010;
 
 export const SAND_CHECK_MASK = 0b1000_0000;
 export const SAND_CHECK_SHIFT = 7;
@@ -63,6 +66,12 @@ export const DIRECTION_SHIFT = 14;
 export const TICK_MASK = 0b0000_0000_0000_1111_0000_0000_0000_0000;
 export const TICK_SHIFT = 16;
 
+export const CURRENT_FRAME_MASK = 0b0000_0000_0011_0000_0000_0000_0000_0000;
+export const CURRENT_FRAME_SHIFT = 20;
+
+export const MAX_FRAMES_MASK = 0b0000_0000_1100_0000_0000_0000_0000_0000;
+export const MAX_FRAMES_SHIFT = 22;
+
 // Pixel types
 
 export const PIXEL_TYPES = [
@@ -74,11 +83,12 @@ export const PIXEL_TYPES = [
   PIXEL_TYPE_COLLECTOR,
   PIXEL_TYPE_DUPLICATER,
   PIXEL_TYPE_CRUSHER,
+  PIXEL_TYPE_BURNER,
 ] as const;
 
 export const PIXEL_TYPE_MINIMAP_COLORS = [
   0x000000, 0x9e4539, 0x7f708a, 0xf9c22b, 0x625565, 0x625565, 0x625565,
-  0x625565,
+  0x625565, 0xe83b3b,
 ];
 
 export const PIXEL_TYPE_RENDER_CALL = [
@@ -155,6 +165,29 @@ export const PIXEL_TYPE_RENDER_CALL = [
       );
     }
   },
+  // BURNER
+  (
+    x: number,
+    y: number,
+    rt: Phaser.GameObjects.RenderTexture,
+    direction: Direction,
+    variant: number,
+    px: number,
+    sandWorld: Uint32Array
+  ) => {
+    if (variant === VARIANT_MACHINE_CORE) {
+      rt.batchDrawFrame(
+        RESOURCES.MACHINE_BURNER,
+        GetCurrentFrame(px) + 4 * direction,
+        x * 16,
+        y * 16
+      );
+      sandWorld[x + y * sandWorldWidth] = SetCurrentFrame(
+        px,
+        (GetCurrentFrame(px) + 1) % 3
+      );
+    }
+  },
 ];
 
 assert(
@@ -189,7 +222,9 @@ export const SAND_TYPE_RENDER_CALL = [
     x: number,
     y: number,
     rt: Phaser.GameObjects.RenderTexture,
-    variant: number
+    _variant: number,
+    _px: number,
+    _sandWorld: Uint32Array
   ) => {
     rt.batchDraw(RESOURCES.SAND_NORMAL, x * 16, y * 16);
   },
@@ -198,7 +233,9 @@ export const SAND_TYPE_RENDER_CALL = [
     x: number,
     y: number,
     rt: Phaser.GameObjects.RenderTexture,
-    variant: number
+    _variant: number,
+    _px: number,
+    _sandWorld: Uint32Array
   ) => {
     rt.batchDraw(RESOURCES.SAND_GLASS, x * 16, y * 16);
   },
@@ -207,7 +244,9 @@ export const SAND_TYPE_RENDER_CALL = [
     x: number,
     y: number,
     rt: Phaser.GameObjects.RenderTexture,
-    variant: number
+    _variant: number,
+    _px: number,
+    _sandWorld: Uint32Array
   ) => {
     rt.batchDraw(RESOURCES.SAND_CRUSHED_GLASS, x * 16, y * 16);
   },
@@ -216,7 +255,9 @@ export const SAND_TYPE_RENDER_CALL = [
     x: number,
     y: number,
     rt: Phaser.GameObjects.RenderTexture,
-    variant: number
+    _variant: number,
+    _px: number,
+    _sandWorld: Uint32Array
   ) => {
     rt.batchDraw(RESOURCES.SAND_SHINY_GLASS, x * 16, y * 16);
   },
@@ -225,7 +266,9 @@ export const SAND_TYPE_RENDER_CALL = [
     x: number,
     y: number,
     rt: Phaser.GameObjects.RenderTexture,
-    variant: number
+    _variant: number,
+    _px: number,
+    _sandWorld: Uint32Array
   ) => {
     rt.batchDraw(RESOURCES.SAND_CRUSHED_SHINY_GLASS, x * 16, y * 16);
   },
@@ -234,7 +277,9 @@ export const SAND_TYPE_RENDER_CALL = [
     x: number,
     y: number,
     rt: Phaser.GameObjects.RenderTexture,
-    variant: number
+    _variant: number,
+    _px: number,
+    _sandWorld: Uint32Array
   ) => {
     rt.batchDraw(RESOURCES.SAND_EMERALD, x * 16, y * 16);
   },
@@ -243,7 +288,9 @@ export const SAND_TYPE_RENDER_CALL = [
     x: number,
     y: number,
     rt: Phaser.GameObjects.RenderTexture,
-    variant: number
+    _variant: number,
+    _px: number,
+    _sandWorld: Uint32Array
   ) => {
     rt.batchDraw(RESOURCES.SAND_NORMAL_EMERALD, x * 16, y * 16);
   },
@@ -252,7 +299,9 @@ export const SAND_TYPE_RENDER_CALL = [
     x: number,
     y: number,
     rt: Phaser.GameObjects.RenderTexture,
-    variant: number
+    _variant: number,
+    _px: number,
+    _sandWorld: Uint32Array
   ) => {
     rt.batchDraw(RESOURCES.SAND_CRUSHED_EMERALD, x * 16, y * 16);
   },
@@ -261,8 +310,11 @@ export const SAND_TYPE_RENDER_CALL = [
     x: number,
     y: number,
     rt: Phaser.GameObjects.RenderTexture,
-    variant: number
+    _variant: number,
+    _px: number,
+    _sandWorld: Uint32Array
   ) => {
+    debugger;
     rt.batchDraw(RESOURCES.SAND_AMBER, x * 16, y * 16);
   },
   // SAND_TYPE_COAL
@@ -270,7 +322,9 @@ export const SAND_TYPE_RENDER_CALL = [
     x: number,
     y: number,
     rt: Phaser.GameObjects.RenderTexture,
-    variant: number
+    _variant: number,
+    _px: number,
+    _sandWorld: Uint32Array
   ) => {
     rt.batchDraw(RESOURCES.SAND_COAL, x * 16, y * 16);
   },
@@ -279,7 +333,9 @@ export const SAND_TYPE_RENDER_CALL = [
     x: number,
     y: number,
     rt: Phaser.GameObjects.RenderTexture,
-    variant: number
+    _variant: number,
+    _px: number,
+    _sandWorld: Uint32Array
   ) => {
     rt.batchDraw(RESOURCES.SAND_DIAMOND, x * 16, y * 16);
   },
@@ -288,7 +344,9 @@ export const SAND_TYPE_RENDER_CALL = [
     x: number,
     y: number,
     rt: Phaser.GameObjects.RenderTexture,
-    variant: number
+    _variant: number,
+    _px: number,
+    _sandWorld: Uint32Array
   ) => {
     rt.batchDraw(RESOURCES.SAND_TRASH, x * 16, y * 16);
   },
@@ -323,6 +381,20 @@ export const SetPixelVariant = (PIXEL: number, variant: number) => {
   return (PIXEL & ~VARIANT_MASK) | (variant << VARIANT_SHIFT);
 };
 
+export const GetCurrentFrame = (PIXEL: number) =>
+  (PIXEL & CURRENT_FRAME_MASK) >> CURRENT_FRAME_SHIFT;
+export const SetCurrentFrame = (PIXEL: number, frame: number) => {
+  if (frame > 0b0011) throw new Error("Frame must be 2 bits");
+  return (PIXEL & ~CURRENT_FRAME_MASK) | (frame << CURRENT_FRAME_SHIFT);
+};
+
+export const GetMaxFrame = (PIXEL: number) =>
+  (PIXEL & MAX_FRAMES_MASK) >> MAX_FRAMES_SHIFT;
+export const SetMaxFrame = (PIXEL: number, maxFrames: number) => {
+  if (maxFrames > 0b0011) throw new Error("Max frames must be 2 bits");
+  return (PIXEL & ~MAX_FRAMES_MASK) | (maxFrames << MAX_FRAMES_SHIFT);
+};
+
 export const GetPixelDirection = (PIXEL: number): Direction =>
   ((PIXEL & DIRECTION_MASK) >> DIRECTION_SHIFT) as Direction;
 
@@ -347,6 +419,10 @@ export const PIXEL_TYPE_DUPLICATOR_SHIFTED = GetPixelType(
   PIXEL_TYPE_DUPLICATER
 );
 export const PIXEL_TYPE_CRUSHER_SHIFTED = GetPixelType(PIXEL_TYPE_CRUSHER);
+
+export const PIXEL_TYPE_BURNER_SHIFTED = GetPixelType(PIXEL_TYPE_BURNER);
+
+// sand
 
 export const SAND_TYPE_NORMAL_SHIFTED = GetPixelType(SAND_TYPE_NORMAL);
 
@@ -659,3 +735,4 @@ export const MACHINE_DUPLICATER_ASSET_POS = 0;
 export const MACHINE_CRUSHER_ASSET_POS = 1;
 export const MACHINE_NORMAL_EMITTER_ASSET_POS = 2;
 export const MACHINE_COLLECTOR_ASSET_POS = 3;
+export const MACHINE_BURNER_ASSET_POS = 4;

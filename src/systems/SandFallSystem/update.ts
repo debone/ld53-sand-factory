@@ -12,7 +12,11 @@ import {
   IsSand,
   PIXEL_TYPE_AIR,
   PIXEL_TYPE_AIR_SHIFTED,
+  PIXEL_TYPE_BURNER,
   SANDS,
+  SAND_TYPE_AMBER,
+  SAND_TYPE_AMBER_SHIFTED,
+  SAND_TYPE_COAL,
   SAND_TYPE_CRUSHED_EMERALD,
   SAND_TYPE_CRUSHED_GLASS,
   SAND_TYPE_CRUSHED_SHINY_GLASS,
@@ -21,12 +25,15 @@ import {
   SAND_TYPE_GLASS,
   SAND_TYPE_NORMAL,
   SAND_TYPE_NORMAL_EMERALD,
+  SAND_TYPE_NORMAL_SHIFTED,
   SAND_TYPE_SHINY_GLASS,
   SAND_TYPE_TRASH,
   STEP_MARKER_EVEN,
   STEP_MARKER_MASK,
   STEP_MARKER_ODD,
   SandType,
+  SetMaxFrame,
+  SetPixelVariant,
 } from "./const";
 
 export const sandWorld = new Uint32Array(sandWorldWidth * sandWorldHeight).fill(
@@ -74,6 +81,15 @@ export const core = () => {
 
       if (IsSand(sandWorld[curr])) {
         if ((sandWorld[curr] & STEP_MARKER_MASK) === iteration) {
+          if (GetPixelType(sandWorld[curr]) === SAND_TYPE_AMBER_SHIFTED) {
+            let v = GetPixelVariant(sandWorld[curr]);
+            if (v > 0) {
+              sandWorld[curr] = SetPixelVariant(sandWorld[curr], v - 1);
+            } else {
+              sandWorld[curr] = SAND_TYPE_COAL;
+            }
+          }
+
           if (GetPixelType(sandWorld[down]) === PIXEL_TYPE_AIR_SHIFTED) {
             sandWorld[down] = ((sandWorld[curr] >> 1) << 1) | nextIteration;
             sandWorld[curr] = PIXEL_TYPE_AIR;
@@ -465,8 +481,6 @@ export const getCrusherResult = (sands: number[]) => {
     sandCounts[GetSandType(sands[i])]++;
   }
 
-  debugger;
-
   // check if we have a recipe for this
   recipe: for (let i = 0; i < sandRecipes.length; i++) {
     for (let j = 0; j < sandCounts.length; j++) {
@@ -519,8 +533,6 @@ const PIXEL_TYPE_CRUSHER_ACTIONS = (
         sandWorld[curr + DIR_CRUSHER[direction][5]],
       ]) as number;
 
-      debugger;
-
       sandWorld[curr + DIR_CRUSHER[direction][0]] = PIXEL_TYPE_AIR;
       sandWorld[curr + DIR_CRUSHER[direction][1]] = PIXEL_TYPE_AIR;
       sandWorld[curr + DIR_CRUSHER[direction][2]] = PIXEL_TYPE_AIR;
@@ -528,6 +540,44 @@ const PIXEL_TYPE_CRUSHER_ACTIONS = (
       sandWorld[curr + DIR_CRUSHER[direction][4]] = PIXEL_TYPE_AIR;
       sandWorld[curr + DIR_CRUSHER[direction][5]] = PIXEL_TYPE_AIR;
     }
+  }
+};
+
+const DIR_BURNER = [
+  [-sandWorldWidth, -sandWorldWidth],
+  [1, 1],
+  [sandWorldWidth, sandWorldWidth],
+  [-1, -1],
+];
+
+const PIXEL_TYPE_BURNER_ACTIONS = (
+  _x: number,
+  _y: number,
+  curr: number,
+  sandWorld: Uint32Array,
+  _iteration: number,
+  nextIteration: number,
+  direction: number
+) => {
+  if (
+    GetPixelType(sandWorld[curr + DIR_BURNER[direction][0]]) ===
+      SAND_TYPE_NORMAL_SHIFTED &&
+    (sandWorld[curr + DIR_BURNER[direction][0]] & STEP_MARKER_MASK) ===
+      iteration
+  ) {
+    sandWorld[curr + DIR_BURNER[direction][1]] =
+      SetPixelVariant(SAND_TYPE_AMBER, 32) | nextIteration;
+    return;
+  }
+
+  if (
+    GetPixelType(sandWorld[curr + DIR_BURNER[direction][0]]) ===
+      SAND_TYPE_AMBER &&
+    (sandWorld[curr + DIR_BURNER[direction][0]] & STEP_MARKER_MASK) ===
+      iteration
+  ) {
+    sandWorld[curr + DIR_BURNER[direction][1]] =
+      SAND_TYPE_GLASS | nextIteration;
   }
 };
 
@@ -549,6 +599,8 @@ export const PIXEL_TYPE_ACTION_CALL = [
   PIXEL_TYPE_DUPLICATER_ACTIONS,
   //PIXEL_TYPE_CRUSHER
   PIXEL_TYPE_CRUSHER_ACTIONS,
+  //PIXEL_TYPE_BURNER
+  PIXEL_TYPE_BURNER_ACTIONS,
 ];
 
 export const SAND_TYPE_ACTION_CALL = [() => {}, () => {}];

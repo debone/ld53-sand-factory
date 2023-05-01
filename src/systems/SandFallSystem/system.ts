@@ -222,7 +222,9 @@ class SandFallSystem {
               x,
               y,
               this.rt,
-              GetPixelVariant(px)
+              GetPixelVariant(px),
+              px,
+              sandWorld
             );
             continue;
           }
@@ -232,7 +234,9 @@ class SandFallSystem {
             y,
             this.rt,
             GetPixelDirection(px),
-            GetPixelVariant(px)
+            GetPixelVariant(px),
+            px,
+            sandWorld
           );
         }
       }

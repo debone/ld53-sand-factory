@@ -135,7 +135,13 @@ export class SceneWorld extends Phaser.Scene {
       callback: () => this.worldStep(),
       loop: true,
     });
+
+    this.maxAnim = 80;
+    this.currAnim = 0;
   }
+
+  declare maxAnim: number;
+  declare currAnim: number;
 
   declare timestep: Phaser.Time.TimerEvent;
 
@@ -145,8 +151,11 @@ export class SceneWorld extends Phaser.Scene {
   }
 
   update(_time: number, delta: number) {
-    this.sandFallSystem.render(largeZoom);
-
+    this.currAnim += delta;
+    if (this.currAnim > this.maxAnim) {
+      this.sandFallSystem.render(largeZoom);
+      this.currAnim = 0;
+    }
     this.controls.update(delta);
   }
 }
