@@ -185,52 +185,112 @@ export const SAND_TYPE_MINIMAP_COLORS = [
 ];
 
 export const SAND_TYPE_RENDER_CALL = [
-  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
+  (
+    x: number,
+    y: number,
+    rt: Phaser.GameObjects.RenderTexture,
+    variant: number
+  ) => {
     rt.batchDraw(RESOURCES.SAND_NORMAL, x * 16, y * 16);
   },
   // SAND_TYPE_GLASS
-  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
-    throw `No render for this sand type yet`;
+  (
+    x: number,
+    y: number,
+    rt: Phaser.GameObjects.RenderTexture,
+    variant: number
+  ) => {
+    rt.batchDraw(RESOURCES.SAND_GLASS, x * 16, y * 16);
   },
   // SAND_TYPE_CRUSHED_GLASS
-  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
-    throw `No render for this sand type yet`;
+  (
+    x: number,
+    y: number,
+    rt: Phaser.GameObjects.RenderTexture,
+    variant: number
+  ) => {
+    rt.batchDraw(RESOURCES.SAND_CRUSHED_GLASS, x * 16, y * 16);
   },
   // SAND_TYPE_SHINY_GLASS
-  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
-    throw `No render for this sand type yet`;
+  (
+    x: number,
+    y: number,
+    rt: Phaser.GameObjects.RenderTexture,
+    variant: number
+  ) => {
+    rt.batchDraw(RESOURCES.SAND_SHINY_GLASS, x * 16, y * 16);
   },
   // SAND_TYPE_CRUSHED_SHINY_GLASS
-  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
-    throw `No render for this sand type yet`;
+  (
+    x: number,
+    y: number,
+    rt: Phaser.GameObjects.RenderTexture,
+    variant: number
+  ) => {
+    rt.batchDraw(RESOURCES.SAND_CRUSHED_SHINY_GLASS, x * 16, y * 16);
   },
   // SAND_TYPE_EMERALD
-  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
-    throw `No render for this sand type yet`;
+  (
+    x: number,
+    y: number,
+    rt: Phaser.GameObjects.RenderTexture,
+    variant: number
+  ) => {
+    rt.batchDraw(RESOURCES.SAND_EMERALD, x * 16, y * 16);
   },
   // SAND_TYPE_NORMAL_EMERALD
-  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
-    throw `No render for this sand type yet`;
+  (
+    x: number,
+    y: number,
+    rt: Phaser.GameObjects.RenderTexture,
+    variant: number
+  ) => {
+    rt.batchDraw(RESOURCES.SAND_NORMAL_EMERALD, x * 16, y * 16);
   },
   // SAND_TYPE_CRUSHED_EMERALD
-  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
-    throw `No render for this sand type yet`;
+  (
+    x: number,
+    y: number,
+    rt: Phaser.GameObjects.RenderTexture,
+    variant: number
+  ) => {
+    rt.batchDraw(RESOURCES.SAND_CRUSHED_EMERALD, x * 16, y * 16);
   },
   // SAND_TYPE_AMBER
-  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
-    throw `No render for this sand type yet`;
+  (
+    x: number,
+    y: number,
+    rt: Phaser.GameObjects.RenderTexture,
+    variant: number
+  ) => {
+    rt.batchDraw(RESOURCES.SAND_AMBER, x * 16, y * 16);
   },
   // SAND_TYPE_COAL
-  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
-    throw `No render for this sand type yet`;
+  (
+    x: number,
+    y: number,
+    rt: Phaser.GameObjects.RenderTexture,
+    variant: number
+  ) => {
+    rt.batchDraw(RESOURCES.SAND_COAL, x * 16, y * 16);
   },
   // SAND_TYPE_DIAMOND
-  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
-    throw `No render for this sand type yet`;
+  (
+    x: number,
+    y: number,
+    rt: Phaser.GameObjects.RenderTexture,
+    variant: number
+  ) => {
+    rt.batchDraw(RESOURCES.SAND_DIAMOND, x * 16, y * 16);
   },
   // SAND_TYPE_TRASH
-  (x: number, y: number, rt: Phaser.GameObjects.RenderTexture) => {
-    throw `No render for this sand type yet`;
+  (
+    x: number,
+    y: number,
+    rt: Phaser.GameObjects.RenderTexture,
+    variant: number
+  ) => {
+    rt.batchDraw(RESOURCES.SAND_TRASH, x * 16, y * 16);
   },
 ];
 
@@ -336,8 +396,13 @@ export const TILES = {
     texture: RESOURCES.TILE_WOOD,
     pixelType: PIXEL_TYPE_TILE_WOOD,
     cost: 15,
-    unlocksAt: 0,
+    unlocksAt: 5,
     hideOnUI: false,
+    description: `
+[img=${RESOURCES.TILE_WOOD}]
+
+[i]Wood tile[/i]
+[i]Cost:[/i] 15`,
   },
   [PIXEL_TYPE_TILE_STEEL]: {
     name: "Steel tile",
@@ -346,8 +411,14 @@ export const TILES = {
     texture: RESOURCES.TILE_STEEL,
     pixelType: PIXEL_TYPE_TILE_STEEL,
     cost: 100,
-    unlocksAt: 1000,
+    unlocksAt: 12_500,
     hideOnUI: false,
+    description: `
+[img=${RESOURCES.TILE_STEEL}]
+
+[i]Steel tile[/i]
+[i]Cost:[/i] 100
+[i]Unlocks at:[/i] 12,500`,
   },
   [PIXEL_TYPE_TILE_LOCK]: {
     name: "Lock tile",
@@ -356,8 +427,14 @@ export const TILES = {
     texture: RESOURCES.TILE_WARNING,
     pixelType: PIXEL_TYPE_TILE_LOCK,
     cost: 250,
-    unlocksAt: 5000,
+    unlocksAt: 100_000,
     hideOnUI: false,
+    description: `
+[img=${RESOURCES.TILE_WARNING}]
+
+[i]Lock tile[/i]
+[i]Cost:[/i] 250
+[i]Unlocks at:[/i] 100,000`,
   },
 };
 
@@ -379,14 +456,15 @@ export const UISandTypes = [
 export type SandType = (typeof UISandTypes)[number];
 
 export const SAND_VALUE = [
+  0, // why did I start at 1 is beyond me
   1, // SAND_TYPE_NORMAL
   10, // SAND_TYPE_GLASS,
   100, // SAND_TYPE_CRUSHED_GLASS,
   250, // SAND_TYPE_SHINY_GLASS,
   1500, // SAND_TYPE_CRUSHED_SHINY_GLASS,
-  10_000, // SAND_TYPE_EMERALD,
-  15_000, // SAND_TYPE_NORMAL_EMERALD,
-  50_000, // SAND_TYPE_CRUSHED_EMERALD,
+  5_000, // SAND_TYPE_EMERALD,
+  7_500, // SAND_TYPE_NORMAL_EMERALD,
+  25_000, // SAND_TYPE_CRUSHED_EMERALD,
   50, // SAND_TYPE_AMBER,
   250, // SAND_TYPE_COAL,
   50_000, //SAND_TYPE_DIAMOND,
@@ -394,18 +472,18 @@ export const SAND_VALUE = [
 ];
 
 export const SAND_UNLOCK = [
-  0, // SAND_TYPE_NORMAL
-  100, // SAND_TYPE_GLASS,
+  3, // SAND_TYPE_NORMAL
+  1000, // SAND_TYPE_GLASS,
   -1, // SAND_TYPE_CRUSHED_GLASS,
-  5000, // SAND_TYPE_SHINY_GLASS,
+  50_000, // SAND_TYPE_SHINY_GLASS,
   -1, // SAND_TYPE_CRUSHED_SHINY_GLASS,
-  25_000, // SAND_TYPE_EMERALD,
+  250_000, // SAND_TYPE_EMERALD,
   -1, // SAND_TYPE_NORMAL_EMERALD,
   -1, // SAND_TYPE_CRUSHED_EMERALD,
   -1, // SAND_TYPE_AMBER,
   -1, // SAND_TYPE_COAL,
   -1, //SAND_TYPE_DIAMOND,
-  -11, // SAND_TYPE_TRASH
+  -1, // SAND_TYPE_TRASH
 ];
 
 export const HAS_SEEN = [
@@ -432,8 +510,14 @@ export const SANDS = {
     pixelType: SAND_TYPE_NORMAL,
     value: SAND_VALUE[GetSandType(SAND_TYPE_NORMAL)],
     cost: SAND_VALUE[GetSandType(SAND_TYPE_NORMAL)],
-    unlocksAt: 0,
+    unlocksAt: 3,
     hideOnUI: false,
+    description: `
+[img=${RESOURCES.SAND_NORMAL}]
+
+[i]Common sand[/i]
+[i]Cost:[/i] 1
+The world is made of sand. I mean, the computer you're running this.`,
   },
   [SAND_TYPE_GLASS]: {
     name: "Glass",
@@ -443,8 +527,14 @@ export const SANDS = {
     pixelType: SAND_TYPE_GLASS,
     value: SAND_VALUE[GetSandType(SAND_TYPE_GLASS)],
     cost: SAND_VALUE[GetSandType(SAND_TYPE_GLASS)],
-    unlocksAt: 100,
+    unlocksAt: 1000,
     hideOnUI: false,
+    description: `
+[img=${RESOURCES.SAND_GLASS}]
+
+[i]Glass sand[/i]
+[i]Cost:[/i] 10
+[i]Unlocks at:[/i] 1,000`,
   },
   [SAND_TYPE_CRUSHED_GLASS]: {
     name: "Crushed glass",
@@ -461,10 +551,17 @@ export const SANDS = {
     height: 1,
     texture: RESOURCES.SAND_SHINY_GLASS,
     pixelType: SAND_TYPE_SHINY_GLASS,
-    unlocksAt: 5000,
+    unlocksAt: 50_000,
     value: SAND_VALUE[GetSandType(SAND_TYPE_SHINY_GLASS)],
     cost: SAND_VALUE[GetSandType(SAND_TYPE_SHINY_GLASS)],
     hideOnUI: false,
+    description: `
+[img=${RESOURCES.SAND_SHINY_GLASS}]
+
+[i]Shiny glass sand[/i]
+[i]Cost:[/i] 250
+[i]Unlocks at:[/i] 50,000
+Yes, it's shiny. But it's still glass, and sand.`,
   },
   [SAND_TYPE_CRUSHED_SHINY_GLASS]: {
     name: "Crushed shiny glass",
@@ -481,10 +578,17 @@ export const SANDS = {
     height: 1,
     texture: RESOURCES.SAND_EMERALD,
     pixelType: SAND_TYPE_EMERALD,
-    unlocksAt: 25000,
+    unlocksAt: 250_000,
     value: SAND_VALUE[GetSandType(SAND_TYPE_EMERALD)],
     cost: SAND_VALUE[GetSandType(SAND_TYPE_EMERALD)],
     hideOnUI: false,
+    description: `
+[img=${RESOURCES.SAND_EMERALD}]
+
+[i]Emerald sand[/i]
+[i]Cost:[/i] 5,000
+[i]Unlocks at:[/i] 250,000
+It's a gem. It's green. It's sand. It's an emerald.`,
   },
   [SAND_TYPE_NORMAL_EMERALD]: {
     name: "Normal sand with emerald",

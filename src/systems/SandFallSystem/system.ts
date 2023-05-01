@@ -62,8 +62,8 @@ class SandFallSystem {
   }
 
   registerEvents(bus: Phaser.Events.EventEmitter) {
-    bus.on(ADD_SAND_EVENT, (x: number, y: number) => {
-      sandWorld[x + y * sandWorldWidth] = SAND_TYPE_NORMAL;
+    bus.on(ADD_SAND_EVENT, (x: number, y: number, type: number) => {
+      sandWorld[x + y * sandWorldWidth] = type;
     });
     bus.on(ADD_TILE_EVENT, (x: number, y: number, type: number) => {
       sandWorld[x + y * sandWorldWidth] = type;
@@ -205,7 +205,7 @@ class SandFallSystem {
         }
       }
 
-      this.rt.batchDraw(this.graphics, 0, 0);
+      this.rt.batchDraw(this.graphics, (sandWorldWidth * tileSize) / 2, 0);
     } else {
       this.rt.fill(0x3e3546);
       let px = 0;
@@ -218,7 +218,12 @@ class SandFallSystem {
           }
 
           if (IsSand(px)) {
-            SAND_TYPE_RENDER_CALL[GetSandType(px) - 1](x, y, this.rt);
+            SAND_TYPE_RENDER_CALL[GetSandType(px) - 1](
+              x,
+              y,
+              this.rt,
+              GetPixelVariant(px)
+            );
             continue;
           }
 

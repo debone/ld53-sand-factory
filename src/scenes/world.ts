@@ -12,6 +12,19 @@ export let largeZoom = false;
 export const cameraTilesWidth = 30;
 export const cameraTilesHeight = 30;
 
+export const randomCacheSize = 8096;
+export let randomCacheCurr = 0;
+
+export const randomCache = new Uint8Array(randomCacheSize);
+
+// sorry
+export const random = () =>
+  randomCache[
+    randomCacheCurr === randomCacheSize
+      ? (randomCacheCurr = 0)
+      : randomCacheCurr++
+  ];
+
 export class SceneWorld extends Phaser.Scene {
   declare rexUI: RexUIPlugin;
   declare bus: Phaser.Events.EventEmitter;
@@ -37,6 +50,10 @@ export class SceneWorld extends Phaser.Scene {
 
   create() {
     this.bus = this.gamebus.getBus();
+
+    for (let i = 0; i < randomCacheSize; i++) {
+      randomCache[i] = Math.floor(Math.random() * 100);
+    }
 
     this.add.text(100, 100, "Main", {
       font: "15vw verdana",
@@ -89,7 +106,7 @@ export class SceneWorld extends Phaser.Scene {
 
     const zoomChange = () => {
       if (largeZoom === false) {
-        this.mapCamera.setScroll(0, 0);
+        this.mapCamera.setScroll((sandWorldWidth * tileSize) / 2, 0);
         this.controls.stop();
         largeZoom = true;
       } else {
@@ -110,6 +127,8 @@ export class SceneWorld extends Phaser.Scene {
 
     this.scene.run("SceneDebug", { sceneWorld: this });
     this.scene.run("SceneUI", { sceneWorld: this });
+
+    this.mapCamera.setScroll((sandWorldWidth * tileSize) / 2, 0);
 
     this.timestep = this.time.addEvent({
       delay: 250,

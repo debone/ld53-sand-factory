@@ -1,5 +1,6 @@
 import { sandWorldHeight, sandWorldWidth } from "../../consts";
 import { totalSand } from "../../scenes/ui";
+import { random } from "../../scenes/world";
 import { VARIANT_MACHINE_CORE } from "../MachineSystem";
 import { directions } from "../consts";
 import {
@@ -7,13 +8,25 @@ import {
   GetPixelDirection,
   GetPixelType,
   GetPixelVariant,
+  GetSandType,
   IsSand,
   PIXEL_TYPE_AIR,
   PIXEL_TYPE_AIR_SHIFTED,
+  SANDS,
+  SAND_TYPE_CRUSHED_EMERALD,
+  SAND_TYPE_CRUSHED_GLASS,
+  SAND_TYPE_CRUSHED_SHINY_GLASS,
+  SAND_TYPE_DIAMOND,
+  SAND_TYPE_EMERALD,
+  SAND_TYPE_GLASS,
   SAND_TYPE_NORMAL,
+  SAND_TYPE_NORMAL_EMERALD,
+  SAND_TYPE_SHINY_GLASS,
+  SAND_TYPE_TRASH,
   STEP_MARKER_EVEN,
   STEP_MARKER_MASK,
   STEP_MARKER_ODD,
+  SandType,
 } from "./const";
 
 export const sandWorld = new Uint32Array(sandWorldWidth * sandWorldHeight).fill(
@@ -67,17 +80,34 @@ export const core = () => {
             continue;
           }
 
-          if (GetPixelType(sandWorld[downLeft]) === PIXEL_TYPE_AIR_SHIFTED) {
-            sandWorld[downLeft] = ((sandWorld[curr] >> 1) << 1) | nextIteration;
-            sandWorld[curr] = PIXEL_TYPE_AIR;
-            continue;
-          }
+          if (random() > 50) {
+            if (GetPixelType(sandWorld[downRight]) === PIXEL_TYPE_AIR_SHIFTED) {
+              sandWorld[downRight] =
+                ((sandWorld[curr] >> 1) << 1) | nextIteration;
+              sandWorld[curr] = PIXEL_TYPE_AIR;
+              continue;
+            }
 
-          if (GetPixelType(sandWorld[downRight]) === PIXEL_TYPE_AIR_SHIFTED) {
-            sandWorld[downRight] =
-              ((sandWorld[curr] >> 1) << 1) | nextIteration;
-            sandWorld[curr] = PIXEL_TYPE_AIR;
-            continue;
+            if (GetPixelType(sandWorld[downLeft]) === PIXEL_TYPE_AIR_SHIFTED) {
+              sandWorld[downLeft] =
+                ((sandWorld[curr] >> 1) << 1) | nextIteration;
+              sandWorld[curr] = PIXEL_TYPE_AIR;
+              continue;
+            }
+          } else {
+            if (GetPixelType(sandWorld[downLeft]) === PIXEL_TYPE_AIR_SHIFTED) {
+              sandWorld[downLeft] =
+                ((sandWorld[curr] >> 1) << 1) | nextIteration;
+              sandWorld[curr] = PIXEL_TYPE_AIR;
+              continue;
+            }
+
+            if (GetPixelType(sandWorld[downRight]) === PIXEL_TYPE_AIR_SHIFTED) {
+              sandWorld[downRight] =
+                ((sandWorld[curr] >> 1) << 1) | nextIteration;
+              sandWorld[curr] = PIXEL_TYPE_AIR;
+              continue;
+            }
           }
           continue;
         }
@@ -149,9 +179,10 @@ const PIXEL_TYPE_COLLECTOR_ACTIONS = (
       (sandWorld[curr + DIR_COLLECTOR[direction][0]] & STEP_MARKER_MASK) ===
         iteration
     ) {
+      totalSand.addSand(
+        GetSandType(sandWorld[curr + DIR_COLLECTOR[direction][0]])
+      );
       sandWorld[curr + DIR_COLLECTOR[direction][0]] = PIXEL_TYPE_AIR;
-
-      totalSand.add(1);
     }
 
     if (
@@ -159,8 +190,10 @@ const PIXEL_TYPE_COLLECTOR_ACTIONS = (
       (sandWorld[curr + DIR_COLLECTOR[direction][1]] & STEP_MARKER_MASK) ===
         iteration
     ) {
+      totalSand.addSand(
+        GetSandType(sandWorld[curr + DIR_COLLECTOR[direction][1]])
+      );
       sandWorld[curr + DIR_COLLECTOR[direction][1]] = PIXEL_TYPE_AIR;
-      totalSand.add(1);
     }
 
     if (
@@ -168,8 +201,10 @@ const PIXEL_TYPE_COLLECTOR_ACTIONS = (
       (sandWorld[curr + DIR_COLLECTOR[direction][2]] & STEP_MARKER_MASK) ===
         iteration
     ) {
+      totalSand.addSand(
+        GetSandType(sandWorld[curr + DIR_COLLECTOR[direction][2]])
+      );
       sandWorld[curr + DIR_COLLECTOR[direction][2]] = PIXEL_TYPE_AIR;
-      totalSand.add(1);
     }
   }
 };
@@ -243,6 +278,217 @@ const DIR_CRUSHER = [
   ],
 ];
 
+/*
+const blankSandRecipe = [
+  0, // DUH
+  0, // SAND_TYPE_NORMAL
+  0, // SAND_TYPE_GLASS,
+  0, // SAND_TYPE_CRUSHED_GLASS,
+  0, // SAND_TYPE_SHINY_GLASS,
+  0, // SAND_TYPE_CRUSHED_SHINY_GLASS,
+  0, // SAND_TYPE_EMERALD,
+  0, // SAND_TYPE_NORMAL_EMERALD,
+  0, // SAND_TYPE_CRUSHED_EMERALD,
+  0, // SAND_TYPE_AMBER,
+  0, // SAND_TYPE_COAL,
+  0, // SAND_TYPE_DIAMOND,
+  0, // SAND_TYPE_TRASH
+];
+*/
+
+const sandRecipes = [
+  [
+    [
+      0, // DUH
+      6, // SAND_TYPE_NORMAL
+      0, // SAND_TYPE_GLASS,
+      0, // SAND_TYPE_CRUSHED_GLASS,
+      0, // SAND_TYPE_SHINY_GLASS,
+      0, // SAND_TYPE_CRUSHED_SHINY_GLASS,
+      0, // SAND_TYPE_EMERALD,
+      0, // SAND_TYPE_NORMAL_EMERALD,
+      0, // SAND_TYPE_CRUSHED_EMERALD,
+      0, // SAND_TYPE_AMBER,
+      0, // SAND_TYPE_COAL,
+      0, // SAND_TYPE_DIAMOND,
+      0, // SAND_TYPE_TRASH
+    ],
+    SAND_TYPE_GLASS,
+  ], // SAND_TYPE_GLASS,
+  [
+    [
+      0, // DUH
+      0, // SAND_TYPE_NORMAL
+      6, // SAND_TYPE_GLASS
+      0, // SAND_TYPE_CRUSHED_GLASS,
+      0, // SAND_TYPE_SHINY_GLASS,
+      0, // SAND_TYPE_CRUSHED_SHINY_GLASS,
+      0, // SAND_TYPE_EMERALD,
+      0, // SAND_TYPE_NORMAL_EMERALD,
+      0, // SAND_TYPE_CRUSHED_EMERALD,
+      0, // SAND_TYPE_AMBER,
+      0, // SAND_TYPE_COAL,
+      0, // SAND_TYPE_DIAMOND,
+      0, // SAND_TYPE_TRASH
+    ],
+    SAND_TYPE_CRUSHED_GLASS,
+  ], // SAND_TYPE_CRUSHED_GLASS,
+  [
+    [
+      0, // DUH
+      0, // SAND_TYPE_NORMAL
+      2, // SAND_TYPE_GLASS,
+      4, // SAND_TYPE_CRUSHED_GLASS,
+      0, // SAND_TYPE_SHINY_GLASS,
+      0, // SAND_TYPE_CRUSHED_SHINY_GLASS,
+      0, // SAND_TYPE_EMERALD,
+      0, // SAND_TYPE_NORMAL_EMERALD,
+      0, // SAND_TYPE_CRUSHED_EMERALD,
+      0, // SAND_TYPE_AMBER,
+      0, // SAND_TYPE_COAL,
+      0, // SAND_TYPE_DIAMOND,
+      0, // SAND_TYPE_TRASH
+    ],
+    SAND_TYPE_SHINY_GLASS,
+  ], // SAND_TYPE_SHINY_GLASS,
+  [
+    [
+      0, // DUH
+      0, // SAND_TYPE_NORMAL
+      0, // SAND_TYPE_GLASS,
+      0, // SAND_TYPE_CRUSHED_GLASS,
+      6, // SAND_TYPE_SHINY_GLASS,
+      0, // SAND_TYPE_CRUSHED_SHINY_GLASS,
+      0, // SAND_TYPE_EMERALD,
+      0, // SAND_TYPE_NORMAL_EMERALD,
+      0, // SAND_TYPE_CRUSHED_EMERALD,
+      0, // SAND_TYPE_AMBER,
+      0, // SAND_TYPE_COAL,
+      0, // SAND_TYPE_DIAMOND,
+      0, // SAND_TYPE_TRASH
+    ],
+    SAND_TYPE_CRUSHED_SHINY_GLASS,
+  ], // SAND_TYPE_CRUSHED_SHINY_GLASS,
+  [
+    [
+      0, // DUH
+      4, // SAND_TYPE_NORMAL
+      0, // SAND_TYPE_GLASS,
+      0, // SAND_TYPE_CRUSHED_GLASS,
+      0, // SAND_TYPE_SHINY_GLASS,
+      2, // SAND_TYPE_CRUSHED_SHINY_GLASS,
+      0, // SAND_TYPE_EMERALD,
+      0, // SAND_TYPE_NORMAL_EMERALD,
+      0, // SAND_TYPE_CRUSHED_EMERALD,
+      0, // SAND_TYPE_AMBER,
+      0, // SAND_TYPE_COAL,
+      0, // SAND_TYPE_DIAMOND,
+      0, // SAND_TYPE_TRASH
+    ],
+    SAND_TYPE_EMERALD,
+  ], // SAND_TYPE_EMERALD,
+  [
+    [
+      0, // DUH
+      4, // SAND_TYPE_NORMAL
+      0, // SAND_TYPE_GLASS,
+      0, // SAND_TYPE_CRUSHED_GLASS,
+      0, // SAND_TYPE_SHINY_GLASS,
+      0, // SAND_TYPE_CRUSHED_SHINY_GLASS,
+      2, // SAND_TYPE_EMERALD,
+      0, // SAND_TYPE_NORMAL_EMERALD,
+      0, // SAND_TYPE_CRUSHED_EMERALD,
+      0, // SAND_TYPE_AMBER,
+      0, // SAND_TYPE_COAL,
+      0, // SAND_TYPE_DIAMOND,
+      0, // SAND_TYPE_TRASH
+    ],
+    SAND_TYPE_NORMAL_EMERALD,
+  ], // SAND_TYPE_NORMAL_EMERALD,
+  [
+    [
+      0, // DUH
+      0, // SAND_TYPE_NORMAL
+      0, // SAND_TYPE_GLASS,
+      0, // SAND_TYPE_CRUSHED_GLASS,
+      0, // SAND_TYPE_SHINY_GLASS,
+      0, // SAND_TYPE_CRUSHED_SHINY_GLASS,
+      6, // SAND_TYPE_EMERALD,
+      0, // SAND_TYPE_NORMAL_EMERALD,
+      0, // SAND_TYPE_CRUSHED_EMERALD,
+      0, // SAND_TYPE_AMBER,
+      0, // SAND_TYPE_COAL,
+      0, // SAND_TYPE_DIAMOND,
+      0, // SAND_TYPE_TRASH
+    ],
+    SAND_TYPE_CRUSHED_EMERALD,
+  ], // SAND_TYPE_CRUSHED_EMERALD,
+  [
+    [
+      0, // DUH
+      0, // SAND_TYPE_NORMAL
+      0, // SAND_TYPE_GLASS,
+      0, // SAND_TYPE_CRUSHED_GLASS,
+      0, // SAND_TYPE_SHINY_GLASS,
+      0, // SAND_TYPE_CRUSHED_SHINY_GLASS,
+      0, // SAND_TYPE_EMERALD,
+      2, // SAND_TYPE_NORMAL_EMERALD,
+      2, // SAND_TYPE_CRUSHED_EMERALD,
+      0, // SAND_TYPE_AMBER,
+      2, // SAND_TYPE_COAL,
+      0, // SAND_TYPE_DIAMOND,
+      0, // SAND_TYPE_TRASH
+    ],
+    SAND_TYPE_DIAMOND,
+  ], // SAND_TYPE_DIAMOND,
+];
+
+export const getCrusherResult = (sands: number[]) => {
+  // count the types of sands
+  const sandCounts = [
+    0, // DUH
+    0, // SAND_TYPE_NORMAL
+    0, // SAND_TYPE_GLASS,
+    0, // SAND_TYPE_CRUSHED_GLASS,
+    0, // SAND_TYPE_SHINY_GLASS,
+    0, // SAND_TYPE_CRUSHED_SHINY_GLASS,
+    0, // SAND_TYPE_EMERALD,
+    0, // SAND_TYPE_NORMAL_EMERALD,
+    0, // SAND_TYPE_CRUSHED_EMERALD,
+    0, // SAND_TYPE_AMBER,
+    0, // SAND_TYPE_COAL,
+    0, // SAND_TYPE_DIAMOND,
+    0, // SAND_TYPE_TRASH
+  ];
+
+  for (let i = 0; i < sands.length; i++) {
+    sandCounts[GetSandType(sands[i])]++;
+  }
+
+  debugger;
+
+  // check if we have a recipe for this
+  recipe: for (let i = 0; i < sandRecipes.length; i++) {
+    for (let j = 0; j < sandCounts.length; j++) {
+      if ((sandRecipes[i][0] as number[])[j] !== sandCounts[j]) {
+        continue recipe;
+      }
+    }
+
+    console.log(
+      "Found recipe",
+      i,
+      sandRecipes[i],
+      SANDS[sandRecipes[i][1] as SandType].name
+    );
+    return sandRecipes[i][1];
+  }
+
+  console.log("trash!");
+
+  return SAND_TYPE_TRASH;
+};
+
 const PIXEL_TYPE_CRUSHER_ACTIONS = (
   _x: number,
   _y: number,
@@ -264,13 +510,23 @@ const PIXEL_TYPE_CRUSHER_ACTIONS = (
       GetPixelType(sandWorld[curr + DIR_CRUSHER[direction][6]]) ===
         PIXEL_TYPE_AIR_SHIFTED
     ) {
+      sandWorld[curr + DIR_CRUSHER[direction][6]] = getCrusherResult([
+        sandWorld[curr + DIR_CRUSHER[direction][0]],
+        sandWorld[curr + DIR_CRUSHER[direction][1]],
+        sandWorld[curr + DIR_CRUSHER[direction][2]],
+        sandWorld[curr + DIR_CRUSHER[direction][3]],
+        sandWorld[curr + DIR_CRUSHER[direction][4]],
+        sandWorld[curr + DIR_CRUSHER[direction][5]],
+      ]) as number;
+
+      debugger;
+
       sandWorld[curr + DIR_CRUSHER[direction][0]] = PIXEL_TYPE_AIR;
       sandWorld[curr + DIR_CRUSHER[direction][1]] = PIXEL_TYPE_AIR;
       sandWorld[curr + DIR_CRUSHER[direction][2]] = PIXEL_TYPE_AIR;
       sandWorld[curr + DIR_CRUSHER[direction][3]] = PIXEL_TYPE_AIR;
       sandWorld[curr + DIR_CRUSHER[direction][4]] = PIXEL_TYPE_AIR;
       sandWorld[curr + DIR_CRUSHER[direction][5]] = PIXEL_TYPE_AIR;
-      sandWorld[curr + DIR_CRUSHER[direction][6]] = SAND_TYPE_NORMAL;
     }
   }
 };
