@@ -4,6 +4,7 @@ import RexUIPlugin from "phaser3-rex-plugins/templates/ui/ui-plugin.js";
 
 import SandFallSystem from "../systems/SandFallSystem/system";
 import { sandWorldHeight, sandWorldWidth, tileSize } from "../consts";
+import MachineSystem from "../systems/MachineSystem";
 
 export let largeZoom = false;
 
@@ -21,6 +22,7 @@ export class SceneWorld extends Phaser.Scene {
   declare keyS: Phaser.Input.Keyboard.Key;
   declare keyD: Phaser.Input.Keyboard.Key;
 
+  declare machineSystem: MachineSystem;
   declare sandFallSystem: SandFallSystem;
 
   declare mapCamera: Phaser.Cameras.Scene2D.Camera;
@@ -79,6 +81,7 @@ export class SceneWorld extends Phaser.Scene {
       controlConfig
     );
 
+    this.machineSystem = new MachineSystem(this);
     this.sandFallSystem = new SandFallSystem(this);
 
     this.cameras.main.ignore(this.sandFallSystem.rt);

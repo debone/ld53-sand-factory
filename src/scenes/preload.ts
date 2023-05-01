@@ -6,8 +6,16 @@ export const imageIso = import.meta.glob<{ default: string }>(
 );
 
 export const RESOURCES = {
-  WARNING_TILE: "warning-tile.png",
-  DUPLICATER_MACHINE: "duplicater-machine.png",
+  TILE_WARNING: "tile-warning.png",
+  TILE_WOOD: "tile-wood.png",
+  TILE_STEEL: "tile-steel.png",
+
+  SAND_NORMAL: "sand-normal.png",
+
+  MACHINE_NORMAL_EMITTER: "machine-emitter.png",
+  MACHINE_COLLECTOR: "machine-collector.png",
+  MACHINE_DUPLICATER: "machine-duplicater.png",
+  MACHINE_CRUSHER: "machine-crusher.png",
 } as const;
 
 export const RESOURCES_INDEX = Object.keys(RESOURCES).reduce(

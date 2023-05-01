@@ -6,7 +6,12 @@ import { RESOURCES } from "./preload";
 import { SceneWorld } from "./world";
 import { params } from "./debug";
 import PhaserGamebus from "../gamebus";
-import { ADD_SAND_EVENT } from "../systems/consts";
+import {
+  ADD_MACHINE_EVENT,
+  ADD_SAND_EVENT,
+  ADD_TILE_EVENT,
+  UP,
+} from "../systems/consts";
 
 import UIbgImg from "../assets/ui/ui-bg.png?url";
 
@@ -22,6 +27,8 @@ import sweepToolImg from "../assets/ui/sweep-tool.png?url";
 
 // @ts-ignore
 import type Color = Display.Color;
+import { MACHINES } from "../systems/MachineSystem";
+import { TILES } from "../systems/SandFallSystem/const";
 const Color = Display.Color;
 
 export const UITilesWidth = 17;
@@ -40,6 +47,12 @@ export const BASE_TEXT_STYLE = {
   fontSize: "16px",
   color: "#ffffff",
 };
+
+export const SELECTED_TOOL_TILE = "selected-tool-tile";
+export const SELECTED_TOOL_MACHINE = "selected-tool-machine";
+export const SELECTED_TOOL_INSPECTOR = "selected-tool-inspect";
+export const SELECTED_TOOL_ERASER = "selected-tool-eraser";
+export const SELECTED_TOOL_SWEEP = "selected-tool-sweep";
 
 export class SceneUI extends Phaser.Scene {
   declare rexUI: RexUIPlugin;
@@ -97,6 +110,10 @@ export class SceneUI extends Phaser.Scene {
     });
   }
 
+  activeTool = SELECTED_TOOL_INSPECTOR;
+  activeToolData: any = null;
+  activeToolRotation = UP;
+
   create({ sceneWorld }: { sceneWorld: SceneWorld }) {
     this.world = sceneWorld;
 
@@ -109,13 +126,13 @@ export class SceneUI extends Phaser.Scene {
       .setOrigin(0, 0);
 
     for (let x = 0; x < GAME_CONFIG.width; x += 16) {
-      this.rt.draw(RESOURCES.WARNING_TILE, x, 0);
-      this.rt.draw(RESOURCES.WARNING_TILE, x, GAME_CONFIG.height - 16);
+      this.rt.draw(RESOURCES.TILE_WARNING, x, 0);
+      this.rt.draw(RESOURCES.TILE_WARNING, x, GAME_CONFIG.height - 16);
     }
     for (let y = 0; y < GAME_CONFIG.height; y += 16) {
-      this.rt.draw(RESOURCES.WARNING_TILE, 0, y);
-      this.rt.draw(RESOURCES.WARNING_TILE, 31 * 16, y);
-      this.rt.draw(RESOURCES.WARNING_TILE, GAME_CONFIG.width - 16, y);
+      this.rt.draw(RESOURCES.TILE_WARNING, 0, y);
+      this.rt.draw(RESOURCES.TILE_WARNING, 31 * 16, y);
+      this.rt.draw(RESOURCES.TILE_WARNING, GAME_CONFIG.width - 16, y);
     }
 
     this.rt.draw("ui-bg", tileSize * 32, tileSize * 1);
@@ -129,8 +146,13 @@ export class SceneUI extends Phaser.Scene {
 
     let draw = false;
 
+    this.mouseOverlayObject = this.add
+      .image(tileSize * 15, tileSize * 10, RESOURCES.MACHINE_DUPLICATER)
+      .setAlpha(0)
+      .setActive(false);
+
     this.input.on("pointerdown", () => {
-      this.bus.emit(ADD_SAND_EVENT, this.tileX, this.tileY);
+      this.emitMouseDown();
       draw = true;
     });
 
@@ -140,12 +162,80 @@ export class SceneUI extends Phaser.Scene {
 
     this.input.on("pointermove", (pointer: Phaser.Input.Pointer) => {
       if (draw && pointer.noButtonDown() === false) {
-        this.bus.emit(ADD_SAND_EVENT, this.tileX, this.tileY);
+        this.emitMouseDown();
+      } else {
+        this.emitMouseMove(pointer);
       }
+    });
+
+    this.keyE = this.input.keyboard!.addKey("E");
+    const keyR = this.input.keyboard!.addKey("R");
+
+    keyR.on("up", () => {
+      this.activeToolRotation = (this.activeToolRotation + 1) % 4;
+      this.mouseOverlayObject.setRotation(
+        (this.activeToolRotation * Math.PI) / 2
+      );
     });
 
     this.createUIElements();
     this.createTabs();
+  }
+
+  declare keyE: Phaser.Input.Keyboard.Key;
+
+  declare mouseOverlayObject: Phaser.GameObjects.Image;
+
+  emitMouseDown() {
+    switch (true) {
+      case this.activeTool === SELECTED_TOOL_TILE: {
+        this.bus.emit(
+          ADD_TILE_EVENT,
+          this.tileX,
+          this.tileY,
+          this.activeToolData.pixelType
+        );
+        break;
+      }
+      case this.activeTool === SELECTED_TOOL_MACHINE: {
+        this.bus.emit(
+          ADD_MACHINE_EVENT,
+          this.tileX,
+          this.tileY,
+          this.activeToolData,
+          this.activeToolRotation
+        );
+        break;
+      }
+      case this.activeTool === SELECTED_TOOL_ERASER: {
+        break;
+      }
+      case this.activeTool === SELECTED_TOOL_SWEEP: {
+        break;
+      }
+    }
+  }
+
+  emitMouseMove(pointer: Phaser.Input.Pointer) {
+    this.mouseOverlayObject.x =
+      Math.floor(pointer.worldX / tileSize) * tileSize + tileSize / 2;
+    this.mouseOverlayObject.y =
+      Math.floor(pointer.worldY / tileSize) * tileSize + tileSize / 2;
+
+    switch (true) {
+      case this.activeTool === SELECTED_TOOL_TILE: {
+        break;
+      }
+      case this.activeTool === SELECTED_TOOL_MACHINE: {
+        break;
+      }
+      case this.activeTool === SELECTED_TOOL_ERASER: {
+        break;
+      }
+      case this.activeTool === SELECTED_TOOL_SWEEP: {
+        break;
+      }
+    }
   }
 
   worldVelocity = 1;
@@ -279,10 +369,6 @@ export class SceneUI extends Phaser.Scene {
   }
 
   createTabs() {
-    const COLOR_PRIMARY = 0x4e342e;
-    const COLOR_LIGHT = 0x7b5e57;
-    const COLOR_DARK = 0x260e04;
-
     const tabPages = this.rexUI.add
       .tabPages({
         x: tileSize * 36,
@@ -304,10 +390,10 @@ export class SceneUI extends Phaser.Scene {
         space: { left: 5, right: 5, top: 5, bottom: 5, item: 10 },
       })
       .setOrigin(0, 0)
-      .on("tab.focus", function (tab, key) {
+      .on("tab.focus", function (tab: any) {
         tab.getElement("background").setStrokeStyle(2, UI_COLOR_LIGHT);
       })
-      .on("tab.blur", function (tab, key) {
+      .on("tab.blur", function (tab: any) {
         tab.getElement("background").setStrokeStyle();
       });
 
@@ -331,7 +417,7 @@ export class SceneUI extends Phaser.Scene {
           }),
           space: { left: 10, right: 11, top: 6, bottom: 10 },
         }),
-        page: this.createTiles(),
+        page: this.createTabUI(TILES, SELECTED_TOOL_TILE),
       })
       .addPage({
         key: "machines",
@@ -353,7 +439,7 @@ export class SceneUI extends Phaser.Scene {
 
           space: { left: 10, right: 11, top: 6, bottom: 10 },
         }),
-        page: this.createEquipmentUI(),
+        page: this.createTabUI(MACHINES, SELECTED_TOOL_MACHINE),
       })
       .layout()
       .swapFirstPage();
@@ -361,12 +447,15 @@ export class SceneUI extends Phaser.Scene {
     return tabPages;
   }
 
-  createTiles() {
+  createTabUI(
+    items: { [itemKey: string]: { name: string; texture: string } },
+    toolType: typeof SELECTED_TOOL_TILE | typeof SELECTED_TOOL_MACHINE
+  ) {
     const scrollablePanel = this.rexUI.add
       .scrollablePanel({
         scrollMode: 0,
         panel: {
-          child: this.createGrid(),
+          child: this.createGrid(items),
         },
         slider: {
           thumb: this.rexUI.add.roundRectangle(0, 0, 0, 20, 5, UI_COLOR_LIGHT),
@@ -385,79 +474,40 @@ export class SceneUI extends Phaser.Scene {
       .setOrigin(0, 0)
       .layout();
 
-    var print = this.add.text(0, 0, "");
-
     scrollablePanel
       .setChildrenInteractive({})
-      .on("child.click", function (child, pointer, event) {
-        print.text += `Click ${child.text}\n`;
+      .on("child.click", (child: any) => {
+        this.activeTool = toolType;
+        this.activeToolData = child.getData("item");
+        this.mouseOverlayObject.setTexture(this.activeToolData.texture);
+        this.mouseOverlayObject.setAlpha(0.5);
+        this.mouseOverlayObject.setActive(true);
+        if (this.activeToolData.origin) {
+          this.mouseOverlayObject.setOrigin(
+            (this.activeToolData.origin[0] + 0.5) / this.activeToolData.width,
+            (this.activeToolData.origin[1] + 0.5) / this.activeToolData.height
+          );
+        } else {
+          this.mouseOverlayObject.setOrigin(0.5, 0.5);
+        }
       })
-      .on("child.down", function (child, pointer, event) {
+      .on("child.down", (child: any) => {
         child.getElement("background").setFillStyle(UI_COLOR_DARK);
       })
-      .on("child.up", function (child, pointer, event) {
-        print.text += `pointer up ${child.text}\n`;
+      .on("child.up", (child: any) => {
         child.getElement("background").setFillStyle(UI_COLOR_NEUTRAL);
       })
-      .on("child.pressstart", function (child, pointer, event) {})
-      .on("child.over", function (child) {
+      .on("child.over", (child: any) => {
         child.getElement("background").setStrokeStyle(2, 0xffffff);
       })
-      .on("child.out", function (child) {
+      .on("child.out", (child: any) => {
         child.getElement("background").setStrokeStyle();
       });
 
     return scrollablePanel;
   }
 
-  createEquipmentUI() {
-    const scrollablePanel = this.rexUI.add
-      .scrollablePanel({
-        scrollMode: 0,
-        panel: {
-          child: this.createGrid(),
-        },
-        slider: {
-          thumb: this.rexUI.add.roundRectangle(0, 0, 0, 20, 5, UI_COLOR_LIGHT),
-        },
-        mouseWheelScroller: {
-          focus: false,
-          speed: 0.1,
-        },
-        space: {
-          right: 8,
-          panel: 8,
-        },
-      })
-      .setOrigin(0, 0)
-      .layout();
-
-    var print = this.add.text(0, 0, "");
-
-    scrollablePanel
-      .setChildrenInteractive({})
-      .on("child.click", function (child, pointer, event) {
-        print.text += `Click ${child.text}\n`;
-      })
-      .on("child.down", function (child, pointer, event) {
-        child.getElement("background").setFillStyle(UI_COLOR_DARK);
-      })
-      .on("child.up", function (child, pointer, event) {
-        print.text += `pointer up ${child.text}\n`;
-        child.getElement("background").setFillStyle(UI_COLOR_NEUTRAL);
-      })
-      .on("child.pressstart", function (child, pointer, event) {})
-      .on("child.over", function (child) {
-        child.getElement("background").setStrokeStyle(2, 0xffffff);
-      })
-      .on("child.out", function (child) {
-        child.getElement("background").setStrokeStyle();
-      });
-
-    return scrollablePanel;
-  }
-
-  createGrid() {
+  createGrid(items: { [itemKey: string]: { name: string; texture: string } }) {
     // Create table body
     var sizer = this.rexUI.add.fixWidthSizer({
       space: {
@@ -470,33 +520,41 @@ export class SceneUI extends Phaser.Scene {
       },
     });
 
-    for (var i = 0; i < 30; i++) {
-      sizer.add(
-        this.rexUI.add.label({
-          width: tileSize * 3,
-          height: tileSize * 3,
+    const itemsKeys = Object.keys(items);
 
-          background: this.rexUI.add.roundRectangle(
-            0,
-            0,
-            0,
-            0,
-            14,
-            UI_COLOR_NEUTRAL
-          ),
+    for (var i = 0; i !== itemsKeys.length; i++) {
+      sizer.add(
+        this.rexUI.add
+          .label({
+            width: tileSize * 3,
+            height: tileSize * 3,
+
+            background: this.rexUI.add.roundRectangle(
+              0,
+              0,
+              0,
+              0,
+              14,
+              UI_COLOR_NEUTRAL
+            ),
+            /*
           text: this.add.text(0, 0, `${i}`, {
             ...BASE_TEXT_STYLE,
             fontSize: 18,
-          }),
+          }),*/
 
-          align: "center",
-          space: {
-            left: 0,
-            right: 0,
-            top: 0,
-            bottom: 0,
-          },
-        })
+            icon: this.add.image(0, 0, items[itemsKeys[i]].texture),
+            iconSize: tileSize * 2,
+
+            align: "center",
+            space: {
+              left: 0,
+              right: 0,
+              top: 0,
+              bottom: 0,
+            },
+          })
+          .setData("item", items[itemsKeys[i]])
       );
     }
 
@@ -514,10 +572,7 @@ export class SceneUI extends Phaser.Scene {
     this.tileX = Math.floor(worldPoint.x / tileSize);
     this.tileY = Math.floor(worldPoint.y / tileSize);
 
-    if (
-      this.input.activePointer.isDown &&
-      (this.prevTileX !== this.tileX || this.prevTileY !== this.tileY)
-    ) {
+    if (this.keyE.isDown) {
       this.bus.emit(ADD_SAND_EVENT, this.tileX, this.tileY);
     }
 
