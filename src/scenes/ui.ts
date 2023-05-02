@@ -144,6 +144,13 @@ export const PROGRESSION_REFERENCE = [
   MACHINES[MACHINE_COLLECTOR].name,
 ];
 
+const defaultInstructionsText = `
+Hover on the menu to see some information.
+You can rotate machines with the R key.
+Watch out! The eraser doesn't work on this version :(
+You can see the sand recipes on the page of the game jam or down below.
+`;
+
 export let CURRENT_PROGRESS = 0;
 export const MAX_PROGRESS = PROGRESSION_REFERENCE.length;
 
@@ -928,45 +935,32 @@ Game by @javascripl
 
     inspectToolSprite.on("pointerout", () => {
       inspectToolSprite.setFrame(0);
+      this.toasterText.setText(``);
     });
     inspectToolSprite.on("pointerover", () => {
       inspectToolSprite.setFrame(1);
-    });
-    inspectToolSprite.on("pointerdown", () => {
-      inspectToolSprite.setFrame(2);
-    });
-    inspectToolSprite.on("pointerup", () => {
-      inspectToolSprite.setFrame(1);
-
-      this.activeTool = SELECTED_TOOL_INSPECTOR;
-      this.activeToolData = null;
-      this.mouseOverlayObject.setAlpha(0);
+      this.toasterText.setStyle(TOASTER_TEXT_STYLE_RED);
+      this.toasterText.setText(`Sorry, run out of time :(`);
     });
 
     eraserToolSprite.on("pointerout", () => {
       eraserToolSprite.setFrame(0);
+      this.toasterText.setText(``);
     });
     eraserToolSprite.on("pointerover", () => {
       eraserToolSprite.setFrame(1);
-    });
-    eraserToolSprite.on("pointerdown", () => {
-      eraserToolSprite.setFrame(2);
-    });
-    eraserToolSprite.on("pointerup", () => {
-      eraserToolSprite.setFrame(1);
+      this.toasterText.setStyle(TOASTER_TEXT_STYLE_RED);
+      this.toasterText.setText(`Sorry, run out of time :(`);
     });
 
     sweepToolSprite.on("pointerout", () => {
       sweepToolSprite.setFrame(0);
+      this.toasterText.setText(``);
     });
     sweepToolSprite.on("pointerover", () => {
       sweepToolSprite.setFrame(1);
-    });
-    sweepToolSprite.on("pointerdown", () => {
-      sweepToolSprite.setFrame(2);
-    });
-    sweepToolSprite.on("pointerup", () => {
-      sweepToolSprite.setFrame(1);
+      this.toasterText.setStyle(TOASTER_TEXT_STYLE_RED);
+      this.toasterText.setText(`Sorry, run out of time :(`);
     });
 
     minimapToolSprite.on("pointerout", () => {
@@ -1017,7 +1011,7 @@ Game by @javascripl
         text: 10,
       },
 
-      content: "Hover on the menu to see some information",
+      content: defaultInstructionsText,
     });
 
     this.rexUI.add
