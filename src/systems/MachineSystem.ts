@@ -6,6 +6,7 @@ import {
   PIXEL_TYPE_COLLECTOR,
   PIXEL_TYPE_CRUSHER,
   PIXEL_TYPE_DUPLICATER as PIXEL_TYPE_DUPLICATER,
+  PIXEL_TYPE_FAN,
   PIXEL_TYPE_NORMAL_EMITTER,
 } from "./SandFallSystem/const";
 import { ADD_MACHINE_EVENT, Direction, UP } from "./consts";
@@ -18,6 +19,7 @@ export const MACHINE_CRUSHER = "machine-crusher";
 export const MACHINE_NORMAL_EMITTER = "machine-normal-emitter";
 export const MACHINE_COLLECTOR = "machine-collector";
 export const MACHINE_BURNER = "machine-burner";
+export const MACHINE_FAN = "machine-fan";
 
 export type MachineMeta = {
   name: string;
@@ -35,6 +37,7 @@ export const MachineTypes = [
   MACHINE_NORMAL_EMITTER,
   MACHINE_COLLECTOR,
   MACHINE_BURNER,
+  MACHINE_FAN,
 ] as const;
 export type MachineType = (typeof MachineTypes)[number];
 
@@ -44,6 +47,7 @@ export const PixelTypeMachineMap: { [key: number]: MachineType } = {
   [PIXEL_TYPE_NORMAL_EMITTER]: MACHINE_NORMAL_EMITTER,
   [PIXEL_TYPE_COLLECTOR]: MACHINE_COLLECTOR,
   [PIXEL_TYPE_BURNER]: MACHINE_BURNER,
+  [PIXEL_TYPE_FAN]: MACHINE_FAN,
 };
 
 // Remember to add the ASSETS on the `SandFallSystem/const.ts` file
@@ -142,6 +146,25 @@ Ain't nobody got time for that. GG.
 [i]Burner[/i]
 [i]Cost:[/i] 10,000
 [i]Unlocks at:[/i] 80,000
+`,
+  },
+  [MACHINE_FAN]: {
+    name: "Fan",
+    width: 1,
+    height: 1,
+    texture: RESOURCES.MACHINE_FAN,
+    pixelType: PIXEL_TYPE_FAN,
+    origin: [0, 0],
+    mask: [[1]],
+    unlocksAt: 20_000,
+    cost: 1_000,
+    hideOnUI: false,
+    description: `
+[img=${RESOURCES.MACHINE_FAN}]
+
+[i]Fan[/i]
+[i]Cost:[/i] 1,000
+[i]Unlocks at:[/i] 20,000
 `,
   },
 });

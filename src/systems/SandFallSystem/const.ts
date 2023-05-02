@@ -28,6 +28,7 @@ export const PIXEL_TYPE_DUPLICATER = 0b0000_1110;
 export const PIXEL_TYPE_CRUSHER = 0b0001_0000;
 
 export const PIXEL_TYPE_BURNER = 0b0001_0010;
+export const PIXEL_TYPE_FAN = 0b0001_0100;
 
 export const SAND_CHECK_MASK = 0b1000_0000;
 export const SAND_CHECK_SHIFT = 7;
@@ -84,11 +85,12 @@ export const PIXEL_TYPES = [
   PIXEL_TYPE_DUPLICATER,
   PIXEL_TYPE_CRUSHER,
   PIXEL_TYPE_BURNER,
+  PIXEL_TYPE_FAN,
 ] as const;
 
 export const PIXEL_TYPE_MINIMAP_COLORS = [
   0x000000, 0x9e4539, 0x7f708a, 0xf9c22b, 0x625565, 0x625565, 0x625565,
-  0x625565, 0xe83b3b,
+  0x625565, 0xe83b3b, 0x6b3e75,
 ];
 
 export const PIXEL_TYPE_RENDER_CALL = [
@@ -178,7 +180,30 @@ export const PIXEL_TYPE_RENDER_CALL = [
     if (variant === VARIANT_MACHINE_CORE) {
       rt.batchDrawFrame(
         RESOURCES.MACHINE_BURNER,
-        GetCurrentFrame(px) + 4 * direction,
+        GetCurrentFrame(px) + 3 * direction,
+        x * 16,
+        y * 16
+      );
+      sandWorld[x + y * sandWorldWidth] = SetCurrentFrame(
+        px,
+        (GetCurrentFrame(px) + 1) % 3
+      );
+    }
+  },
+  // FAN
+  (
+    x: number,
+    y: number,
+    rt: Phaser.GameObjects.RenderTexture,
+    direction: Direction,
+    variant: number,
+    px: number,
+    sandWorld: Uint32Array
+  ) => {
+    if (variant === VARIANT_MACHINE_CORE) {
+      rt.batchDrawFrame(
+        RESOURCES.MACHINE_FAN,
+        GetCurrentFrame(px) + 3 * direction,
         x * 16,
         y * 16
       );
@@ -314,8 +339,16 @@ export const SAND_TYPE_RENDER_CALL = [
     _px: number,
     _sandWorld: Uint32Array
   ) => {
-    debugger;
-    rt.batchDraw(RESOURCES.SAND_AMBER, x * 16, y * 16);
+    rt.batchDrawFrame(
+      RESOURCES.SAND_AMBER,
+      GetCurrentFrame(_px),
+      x * 16,
+      y * 16
+    );
+    _sandWorld[x + y * sandWorldWidth] = SetCurrentFrame(
+      _px,
+      (GetCurrentFrame(_px) + 1) % 3
+    );
   },
   // SAND_TYPE_COAL
   (
@@ -421,6 +454,7 @@ export const PIXEL_TYPE_DUPLICATOR_SHIFTED = GetPixelType(
 export const PIXEL_TYPE_CRUSHER_SHIFTED = GetPixelType(PIXEL_TYPE_CRUSHER);
 
 export const PIXEL_TYPE_BURNER_SHIFTED = GetPixelType(PIXEL_TYPE_BURNER);
+export const PIXEL_TYPE_FAN_SHIFTED = GetPixelType(PIXEL_TYPE_FAN);
 
 // sand
 

@@ -581,6 +581,64 @@ const PIXEL_TYPE_BURNER_ACTIONS = (
   }
 };
 
+const DIR_FAN = [
+  [
+    -sandWorldWidth,
+    -sandWorldWidth * 2,
+    -sandWorldWidth * 3,
+    -sandWorldWidth * 4,
+    -sandWorldWidth * 5,
+    -sandWorldWidth * 6,
+  ],
+  [1, 2, 3, 4, 5, 6],
+  [
+    sandWorldWidth,
+    sandWorldWidth * 2,
+    sandWorldWidth * 3,
+    sandWorldWidth * 4,
+    sandWorldWidth * 5,
+    sandWorldWidth * 6,
+  ],
+  [-1, -2, -3, -4, -5, -6],
+];
+
+let tempLenght = 0;
+
+const PIXEL_TYPE_FAN_ACTIONS = (
+  _x: number,
+  _y: number,
+  curr: number,
+  sandWorld: Uint32Array,
+  _iteration: number,
+  nextIteration: number,
+  direction: number
+) => {
+  tempLenght = 5;
+
+  for (let i = 5; i !== -1; i--) {
+    if (
+      !IsSand(sandWorld[curr + DIR_FAN[direction][i]]) &&
+      GetPixelType(sandWorld[curr + DIR_FAN[direction][i]]) !==
+        PIXEL_TYPE_AIR_SHIFTED
+    ) {
+      tempLenght = i;
+    }
+  }
+
+  for (let i = tempLenght; i !== 0; i--) {
+    if (
+      IsSand(sandWorld[curr + DIR_FAN[direction][i - 1]]) &&
+      GetPixelType(sandWorld[curr + DIR_FAN[direction][i]]) ===
+        PIXEL_TYPE_AIR_SHIFTED
+    ) {
+      sandWorld[curr + DIR_FAN[direction][i]] =
+        CleanIteration(sandWorld[curr + DIR_FAN[direction][i - 1]]) |
+        nextIteration;
+      sandWorld[curr + DIR_FAN[direction][i - 1]] = PIXEL_TYPE_AIR;
+    }
+  }
+};
+
 export const PIXEL_TYPE_ACTION_CALL = [
   //PIXEL_TYPE_AIR
   //[(x: number, _y: number, i: number, sandWorld: Uint32Array) => {}],
@@ -601,6 +659,8 @@ export const PIXEL_TYPE_ACTION_CALL = [
   PIXEL_TYPE_CRUSHER_ACTIONS,
   //PIXEL_TYPE_BURNER
   PIXEL_TYPE_BURNER_ACTIONS,
+  //PIXEL_TYPE_FAN
+  PIXEL_TYPE_FAN_ACTIONS,
 ];
 
 export const SAND_TYPE_ACTION_CALL = [() => {}, () => {}];
