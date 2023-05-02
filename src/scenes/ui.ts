@@ -169,7 +169,6 @@ export let totalSand: {
   lastUpdate: 0,
   addSand: (sandType: number) => {
     totalSand.add(SAND_VALUE[sandType]);
-    totalSand.add(1000);
   },
   add(amount: number) {
     totalSand.count += amount;
@@ -1221,7 +1220,7 @@ Game by @javascripl
       })
       .on("child.out", (child: any) => {
         child.getElement("background").setStrokeStyle();
-        this.infoPanelText.setText("");
+        this.infoPanelText.setText(defaultInstructionsText);
         this.toasterText.setText("");
       });
 
