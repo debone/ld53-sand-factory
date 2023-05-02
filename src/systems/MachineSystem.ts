@@ -5,11 +5,11 @@ import {
   PIXEL_TYPE_BURNER,
   PIXEL_TYPE_COLLECTOR,
   PIXEL_TYPE_CRUSHER,
-  PIXEL_TYPE_DUPLICATER as PIXEL_TYPE_DUPLICATER,
+  PIXEL_TYPE_DUPLICATER,
   PIXEL_TYPE_FAN,
   PIXEL_TYPE_NORMAL_EMITTER,
 } from "./SandFallSystem/const";
-import { ADD_MACHINE_EVENT, Direction, UP } from "./consts";
+import { ADD_MACHINE_EVENT, Direction } from "./consts";
 
 export const VARIANT_MACHINE_CORE = 0;
 export const VARIANT_MACHINE_PART = 1;

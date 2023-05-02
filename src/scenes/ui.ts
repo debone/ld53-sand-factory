@@ -1,18 +1,9 @@
-import { Display, GameObjects, RIGHT } from "phaser";
+import { Display, RIGHT } from "phaser";
 import RexUIPlugin from "phaser3-rex-plugins/templates/ui/ui-plugin.js";
 
 import { GAME_CONFIG, tileSize } from "../consts";
-import { RESOURCES } from "./preload";
-import {
-  SceneWorld,
-  cameraTilesHeight,
-  cameraTilesWidth,
-  random,
-} from "./world";
-import { params } from "./debug";
 import PhaserGamebus from "../gamebus";
 import {
-  ACTIVATE_ITEM_EVENT,
   ADD_MACHINE_EVENT,
   ADD_SAND_EVENT,
   ADD_TILE_EVENT,
@@ -20,29 +11,33 @@ import {
   MINIMAP_TOOL_EVENT,
   UP,
 } from "../systems/consts";
+import { params } from "./debug";
+import { RESOURCES } from "./preload";
+import { SceneWorld, cameraTilesHeight, cameraTilesWidth } from "./world";
 
 import UIbgImg from "../assets/ui/ui-bg.png?url";
 
-import playButtonImg from "../assets/ui/play-button.png?url";
-import pauseButtonImg from "../assets/ui/pause-button.png?url";
-import stepButtonImg from "../assets/ui/step-button.png?url";
 import ffButtonImg from "../assets/ui/ff-button.png?url";
+import pauseButtonImg from "../assets/ui/pause-button.png?url";
+import playButtonImg from "../assets/ui/play-button.png?url";
+import stepButtonImg from "../assets/ui/step-button.png?url";
 
 import stepIndicatorImg from "../assets/ui/step-indicator.png?url";
 
-import inspectToolImg from "../assets/ui/inspect-tool.png?url";
+import RoundRectangle from "phaser3-rex-plugins/plugins/roundrectangle";
+import TextArea from "phaser3-rex-plugins/templates/ui/textarea/TextArea";
 import eraserToolImg from "../assets/ui/eraser-tool.png?url";
-import sweepToolImg from "../assets/ui/sweep-tool.png?url";
+import inspectToolImg from "../assets/ui/inspect-tool.png?url";
 import minimapToolImg from "../assets/ui/minimap-tool.png?url";
-
-// @ts-ignore
-import type Color = Display.Color;
+import sweepToolImg from "../assets/ui/sweep-tool.png?url";
+import { sandWorldWidth } from "../consts";
 import {
   MACHINES,
   MACHINE_BURNER,
   MACHINE_COLLECTOR,
   MACHINE_CRUSHER,
   MACHINE_DUPLICATER,
+  MACHINE_FAN,
   MACHINE_NORMAL_EMITTER,
 } from "../systems/MachineSystem";
 import {
@@ -58,15 +53,13 @@ import {
   SAND_TYPE_NORMAL,
   SAND_TYPE_SHINY_GLASS,
   SAND_VALUE,
-  SandType,
   TILES,
 } from "../systems/SandFallSystem/const";
-import RoundRectangle from "phaser3-rex-plugins/plugins/roundrectangle";
-import { sandWorldWidth } from "../consts";
 import { sandWorld } from "../systems/SandFallSystem/update";
 import { LEFT } from "../systems/consts";
-import TextArea from "phaser3-rex-plugins/templates/ui/textarea/TextArea";
-import { t } from "vitest/dist/global-ea084c9f";
+
+// @ts-ignore
+import type Color = Display.Color;
 const Color = Display.Color;
 
 export const UITilesWidth = 17;
@@ -127,6 +120,7 @@ export const PROGRESSION_COST = [
   SANDS[SAND_TYPE_GLASS].unlocksAt,
   MACHINES[MACHINE_DUPLICATER].unlocksAt,
   TILES[PIXEL_TYPE_TILE_STEEL].unlocksAt,
+  MACHINES[MACHINE_FAN].unlocksAt,
   SANDS[SAND_TYPE_SHINY_GLASS].unlocksAt,
   MACHINES[MACHINE_CRUSHER].unlocksAt,
   MACHINES[MACHINE_BURNER].unlocksAt,
@@ -141,6 +135,7 @@ export const PROGRESSION_REFERENCE = [
   SANDS[SAND_TYPE_GLASS].name,
   MACHINES[MACHINE_DUPLICATER].name,
   TILES[PIXEL_TYPE_TILE_STEEL].name,
+  MACHINES[MACHINE_FAN].name,
   SANDS[SAND_TYPE_SHINY_GLASS].name,
   MACHINES[MACHINE_CRUSHER].name,
   MACHINES[MACHINE_BURNER].name,
@@ -151,6 +146,8 @@ export const PROGRESSION_REFERENCE = [
 
 export let CURRENT_PROGRESS = 0;
 export const MAX_PROGRESS = PROGRESSION_REFERENCE.length;
+
+let end = false;
 
 export let totalSand: {
   bus: any;
@@ -165,6 +162,7 @@ export let totalSand: {
   lastUpdate: 0,
   addSand: (sandType: number) => {
     totalSand.add(SAND_VALUE[sandType]);
+    totalSand.add(1000);
   },
   add(amount: number) {
     totalSand.count += amount;
@@ -176,6 +174,11 @@ export let totalSand: {
       totalSand.bus.emit(`${PROGRESSION_REFERENCE[CURRENT_PROGRESS]} label`);
 
       CURRENT_PROGRESS++;
+    }
+
+    if (totalSand.count > 1_000_000 && !end) {
+      totalSand.bus.emit("end-first");
+      end = true;
     }
   },
   pay(amount: number) {
@@ -356,27 +359,277 @@ export class SceneUI extends Phaser.Scene {
       UP
     );
 
-    totalSand.add(50);
-    totalSand.add(50);
-    totalSand.add(50);
-    totalSand.add(50);
-    totalSand.add(50);
+    const firstMillion = () => {
+      const dialog = this.rexUI.add
+        .dialog({
+          x: 400,
+          y: 150,
+          width: 500,
+          height: 200,
 
-    // REMOVE ME
-    totalSand.add(5000);
-    totalSand.add(5000);
-    totalSand.add(5000);
-    totalSand.add(5000);
-    totalSand.add(5000);
-    totalSand.add(5000);
+          background: this.rexUI.add.roundRectangle(
+            0,
+            0,
+            100,
+            100,
+            5,
+            0x625565
+          ),
 
-    this.bus.emit(
-      ADD_MACHINE_EVENT,
-      Math.floor(sandWorldWidth / 2 + cameraTilesWidth / 2) + 5,
-      22,
-      MACHINES[MACHINE_CRUSHER],
-      UP
-    );
+          toolbar: [
+            this.rexUI.add.label({
+              width: 20, // Minimum width of round-rectangle
+              height: 20, // Minimum height of round-rectangle
+
+              background: this.rexUI.add.roundRectangle(
+                0,
+                0,
+                5,
+                5,
+                10,
+                0x7f708a
+              ),
+
+              text: this.add.text(0, 0, "X", {
+                ...TOASTER_TEXT_STYLE,
+                fontSize: "8px",
+              }),
+
+              space: {
+                left: 10,
+                right: 10,
+                top: 10,
+                bottom: 10,
+              },
+            }),
+          ],
+
+          content: this.rexUI.add.label({
+            width: 40, // Minimum width of round-rectangle
+            height: 40, // Minimum height of round-rectangle
+
+            background: this.rexUI.add.roundRectangle(
+              0,
+              0,
+              100,
+              40,
+              3,
+              0x7f708a
+            ),
+
+            text: this.rexUI.add.BBCodeText(
+              0,
+              0,
+              `
+You reached your first 1,000,000!
+I hope you've enjoyed so far!
+
+If you're up to the challenge, try getting the diamond!
+
+[align=center][img=${RESOURCES.SAND_DIAMOND}]  [img=${RESOURCES.SAND_DIAMOND}]  [img=${RESOURCES.SAND_DIAMOND}][/align]
+`,
+              {
+                ...TOASTER_TEXT_STYLE,
+                fontSize: "12px",
+              }
+            ),
+
+            space: {
+              left: 10,
+              right: 10,
+              top: 10,
+              bottom: 10,
+            },
+          }),
+
+          space: {
+            left: 20,
+            right: 20,
+            top: -20,
+            bottom: -20,
+
+            title: 25,
+            titleLeft: 30,
+            content: 25,
+            description: 25,
+            descriptionLeft: 20,
+            descriptionRight: 20,
+            choices: 25,
+
+            toolbarItem: 5,
+            choice: 15,
+            action: 15,
+          },
+
+          expand: {
+            title: false,
+            // content: false,
+            // description: false,
+            // choices: false,
+            // actions: true,
+          },
+
+          align: {
+            title: "center",
+            // content: 'left',
+            // description: 'left',
+            // choices: 'left',
+            actions: "right", // 'center'|'left'|'right'
+          },
+
+          click: {
+            mode: "release",
+          },
+        })
+        .layout()
+        .popUp(1000);
+
+      dialog.on("button.click", () => {
+        dialog.destroy();
+      });
+    };
+    this.bus.on("end-first", firstMillion);
+
+    const endGame = () => {
+      const dialog = this.rexUI.add
+        .dialog({
+          x: 400,
+          y: 150,
+          width: 300,
+          height: 250,
+
+          background: this.rexUI.add.roundRectangle(
+            0,
+            0,
+            100,
+            100,
+            5,
+            0x625565
+          ),
+
+          toolbar: [
+            this.rexUI.add.label({
+              width: 20, // Minimum width of round-rectangle
+              height: 20, // Minimum height of round-rectangle
+
+              background: this.rexUI.add.roundRectangle(
+                0,
+                0,
+                5,
+                5,
+                10,
+                0x7f708a
+              ),
+
+              text: this.add.text(0, 0, "X", {
+                ...TOASTER_TEXT_STYLE,
+                fontSize: "8px",
+              }),
+
+              space: {
+                left: 10,
+                right: 10,
+                top: 10,
+                bottom: 10,
+              },
+            }),
+          ],
+
+          content: this.rexUI.add.label({
+            width: 40, // Minimum width of round-rectangle
+            height: 40, // Minimum height of round-rectangle
+
+            background: this.rexUI.add.roundRectangle(
+              0,
+              0,
+              100,
+              40,
+              3,
+              0x7f708a
+            ),
+
+            text: this.rexUI.add.BBCodeText(
+              0,
+              0,
+              `
+[align=center][img=${RESOURCES.SAND_DIAMOND}]  [img=${RESOURCES.SAND_DIAMOND}]  [img=${RESOURCES.SAND_DIAMOND}]  [img=${RESOURCES.SAND_DIAMOND}]  [img=${RESOURCES.SAND_DIAMOND}]  [img=${RESOURCES.SAND_DIAMOND}]  [img=${RESOURCES.SAND_DIAMOND}]  [img=${RESOURCES.SAND_DIAMOND}]  [img=${RESOURCES.SAND_DIAMOND}]
+
+
+You got the diamond! Congratulations!
+I hope you've enjoyed the game :)
+Thank you for playing!
+
+Game by @javascripl
+
+[img=${RESOURCES.SAND_DIAMOND}]  [img=${RESOURCES.SAND_DIAMOND}]  [img=${RESOURCES.SAND_DIAMOND}]  [img=${RESOURCES.SAND_DIAMOND}]  [img=${RESOURCES.SAND_DIAMOND}]  [img=${RESOURCES.SAND_DIAMOND}]  [img=${RESOURCES.SAND_DIAMOND}]  [img=${RESOURCES.SAND_DIAMOND}]  [img=${RESOURCES.SAND_DIAMOND}][/align]
+`,
+              {
+                ...TOASTER_TEXT_STYLE,
+                fontSize: "12px",
+              }
+            ),
+
+            space: {
+              left: 10,
+              right: 10,
+              top: 10,
+              bottom: 10,
+            },
+          }),
+
+          space: {
+            left: 20,
+            right: 20,
+            top: -20,
+            bottom: -20,
+
+            title: 25,
+            titleLeft: 30,
+            content: 25,
+            description: 25,
+            descriptionLeft: 20,
+            descriptionRight: 20,
+            choices: 25,
+
+            toolbarItem: 5,
+            choice: 15,
+            action: 15,
+          },
+
+          expand: {
+            title: false,
+            // content: false,
+            // description: false,
+            // choices: false,
+            // actions: true,
+          },
+
+          align: {
+            title: "center",
+            // content: 'left',
+            // description: 'left',
+            // choices: 'left',
+            actions: "right", // 'center'|'left'|'right'
+          },
+
+          click: {
+            mode: "release",
+          },
+        })
+        .layout()
+        .popUp(1000);
+
+      dialog.on("button.click", () => {
+        dialog.destroy();
+      });
+    };
+    this.bus.on("end-diamond", endGame);
+
+    totalSand.add(50);
+    totalSand.add(50);
+    totalSand.add(50);
+    totalSand.add(50);
+    totalSand.add(50);
 
     /*    this.bus.emit(
       ADD_MACHINE_EVENT,
@@ -950,7 +1203,13 @@ export class SceneUI extends Phaser.Scene {
       .on("child.over", (child: any) => {
         const item = child.getData("item");
 
-        this.toasterText.setText(`cost: ${item.cost}`);
+        this.toasterText.setText(
+          !child.getData("available")
+            ? `unlocks at: ${this.counterNumberFormatter.format(
+                item.unlocksAt
+              )}`
+            : `cost: ${this.counterNumberFormatter.format(item.cost)}`
+        );
         this.toasterText.setStyle(
           !child.getData("available") || item.cost > totalSand.count
             ? TOASTER_TEXT_STYLE_RED
@@ -999,8 +1258,7 @@ export class SceneUI extends Phaser.Scene {
     for (var i = 0; i !== itemsKeys.length; i++) {
       const item = items[itemsKeys[i]];
 
-      // REMOVE ME (UNCOMMENT ME)
-      //if (item.hideOnUI) continue;
+      if (item.hideOnUI) continue;
 
       const icon = this.add.image(0, 0, items[itemsKeys[i]].texture);
 
@@ -1035,10 +1293,6 @@ export class SceneUI extends Phaser.Scene {
 
       label.setData("item", item);
       label.setData("available", false);
-
-      // REMOVE ME
-      label.setData("available", true);
-      background.setFillStyle(UI_COLOR_HIGHLIGHT, 0.1);
 
       this.bus.on(`${item.name} label`, () => {
         label.setData("available", true);

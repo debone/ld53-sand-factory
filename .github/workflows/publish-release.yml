@@ -2,7 +2,7 @@ name: Publish to release branch itch.io
 
 env:
   ITCHIO_CHANNEL: html5
-  ITCHIO_GAME: testing-deploy-404
+  ITCHIO_GAME: the-sand-world
   ITCHIO_USERNAME: debone
 
 # You can block these tags from push on github settings

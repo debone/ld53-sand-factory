@@ -125,7 +125,7 @@ export class SceneWorld extends Phaser.Scene {
 
     //  rt.draw(RESOURCES.WARNING_TILE, 0, 0);
 
-    this.scene.run("SceneDebug", { sceneWorld: this });
+    //    this.scene.run("SceneDebug", { sceneWorld: this });
     this.scene.run("SceneUI", { sceneWorld: this });
 
     this.mapCamera.setScroll((sandWorldWidth * tileSize) / 2, 0);

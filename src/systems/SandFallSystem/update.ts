@@ -2,7 +2,6 @@ import { sandWorldHeight, sandWorldWidth } from "../../consts";
 import { totalSand } from "../../scenes/ui";
 import { random } from "../../scenes/world";
 import { VARIANT_MACHINE_CORE } from "../MachineSystem";
-import { directions } from "../consts";
 import {
   CleanIteration,
   GetPixelDirection,
@@ -12,7 +11,6 @@ import {
   IsSand,
   PIXEL_TYPE_AIR,
   PIXEL_TYPE_AIR_SHIFTED,
-  PIXEL_TYPE_BURNER,
   SANDS,
   SAND_TYPE_AMBER,
   SAND_TYPE_AMBER_SHIFTED,
@@ -32,7 +30,6 @@ import {
   STEP_MARKER_MASK,
   STEP_MARKER_ODD,
   SandType,
-  SetMaxFrame,
   SetPixelVariant,
 } from "./const";
 
@@ -186,7 +183,7 @@ const PIXEL_TYPE_COLLECTOR_ACTIONS = (
   curr: number,
   sandWorld: Uint32Array,
   _iteration: number,
-  nextIteration: number,
+  _nextIteration: number,
   direction: number
 ) => {
   if (GetPixelVariant(sandWorld[curr]) === VARIANT_MACHINE_CORE) {
@@ -239,7 +236,7 @@ const PIXEL_TYPE_DUPLICATER_ACTIONS = (
   _y: number,
   curr: number,
   sandWorld: Uint32Array,
-  iteration: number,
+  _iteration: number,
   nextIteration: number,
   direction: number
 ) => {
@@ -459,6 +456,8 @@ const sandRecipes = [
   ], // SAND_TYPE_DIAMOND,
 ];
 
+let diamondFound = false;
+
 export const getCrusherResult = (sands: number[]) => {
   // count the types of sands
   const sandCounts = [
@@ -487,6 +486,11 @@ export const getCrusherResult = (sands: number[]) => {
       if ((sandRecipes[i][0] as number[])[j] !== sandCounts[j]) {
         continue recipe;
       }
+    }
+
+    if (i === 7 && !diamondFound) {
+      diamondFound = true;
+      totalSand.bus.emit("end-diamond");
     }
 
     console.log(
