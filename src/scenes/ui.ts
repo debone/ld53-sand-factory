@@ -734,9 +734,15 @@ Game by @javascripl
     ) {
       this.mouseOverlayObject.setVisible(true);
       this.mouseOverlayObject.x =
-        Math.floor(pointer.worldX / tileSize) * tileSize + tileSize / 2;
+        this.tileX * tileSize -
+        this.world.mapCamera.scrollX +
+        tileSize +
+        tileSize / 2;
       this.mouseOverlayObject.y =
-        Math.floor(pointer.worldY / tileSize) * tileSize + tileSize / 2;
+        this.tileY * tileSize -
+        this.world.mapCamera.scrollY +
+        tileSize +
+        tileSize / 2;
     } else {
       this.mouseOverlayObject.setVisible(false);
     }
@@ -744,7 +750,7 @@ Game by @javascripl
     if (this.activeToolData?.cost > totalSand.count) {
       this.mouseOverlayObject.setTint(0xff0000);
     } else {
-      this.mouseOverlayObject.setTint(0);
+      this.mouseOverlayObject.setTint(0xffffff);
     }
 
     switch (true) {
