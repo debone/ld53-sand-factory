@@ -13,7 +13,12 @@ import {
 } from "../systems/consts";
 import { params } from "./debug";
 import { RESOURCES } from "./preload";
-import { SceneWorld, cameraTilesHeight, cameraTilesWidth } from "./world";
+import {
+  SceneWorld,
+  cameraTilesHeight,
+  cameraTilesWidth,
+  largeZoom,
+} from "./world";
 
 import UIbgImg from "../assets/ui/ui-bg.png?url";
 
