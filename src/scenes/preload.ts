@@ -10,6 +10,8 @@ export const imageIso = import.meta.glob<{ default: string }>(
 );
 
 export const RESOURCES = {
+  INTRO: "intro.png",
+
   TILE_WARNING: "tile-warning.png",
   TILE_WOOD: "tile-wood.png",
   TILE_STEEL: "tile-steel.png",
@@ -80,13 +82,14 @@ export class ScenePreload extends Phaser.Scene {
   }
 
   create() {
+    this.add.sprite(800, 0, RESOURCES.INTRO).setOrigin(1, 0);
     WebFont.load({
       google: {
         families: ["Silkscreen"],
       },
       active: () => {
         this.add
-          .text(260, 320, "Press space to start", {
+          .text(80, 320, `Press "z" to start`, {
             fontFamily: "Silkscreen",
             fontSize: "32px",
             color: "#ffffff",
@@ -95,11 +98,7 @@ export class ScenePreload extends Phaser.Scene {
       },
     });
 
-    this.keySpace = this.input.keyboard!.addKey("SPACE");
-
-    this.scene.transition({
-      target: "SceneWorld",
-    });
+    this.keySpace = this.input.keyboard!.addKey("Z");
   }
 
   update(/*time, delta*/) {
@@ -107,6 +106,7 @@ export class ScenePreload extends Phaser.Scene {
       this.scene.transition({
         target: "SceneWorld",
         duration: 2000,
+        moveAbove: true,
       });
     }
   }

@@ -145,9 +145,10 @@ export const PROGRESSION_REFERENCE = [
 ];
 
 const defaultInstructionsText = `
-Hover on the menu to see some information.
-You can rotate machines with the R key.
-Watch out! The eraser doesn't work on this version :(
+Hover on the menu for more info.
+
+You can rotate machines with the R key. WASD to navigate around. Space will zoom-in.
+
 You can see the sand recipes on the page of the game jam or down below.
 `;
 
@@ -1326,12 +1327,15 @@ Game by @javascripl
       totalSand.lastUpdate = totalSand.count;
     }
 
+    if (!largeZoom) {
     this.drawMark(
       this.tileX * tileSize - this.world.mapCamera.scrollX,
       this.tileY * tileSize - this.world.mapCamera.scrollY,
       Color.IntegerToColor(0x9966ff)
     );
-
+    } else {
+      this.marker.clear();
+    }
     params.worldCoord.x = worldPoint.x;
     params.worldCoord.y = worldPoint.y;
     params.tileCoord.x = this.tileX;

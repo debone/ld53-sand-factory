@@ -21,7 +21,7 @@ export const GAME_CONFIG = {
   width: 50 * 16, // 800
   height: 32 * 16, // 512
   pixelArt: true,
-  backgroundColor: COLORS[0],
+  backgroundColor: "#3e3546",
   //"render.transparent": true,
   parent: "game-container",
 };

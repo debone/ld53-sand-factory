@@ -55,11 +55,6 @@ export class SceneWorld extends Phaser.Scene {
       randomCache[i] = Math.floor(Math.random() * 100);
     }
 
-    this.add.text(100, 100, "Main", {
-      font: "15vw verdana",
-      color: "white",
-    });
-
     this.cursors = this.input.keyboard!.createCursorKeys();
 
     this.keyW = this.input.keyboard?.addKey(Phaser.Input.Keyboard.KeyCodes.W)!;
