@@ -9,7 +9,7 @@ import {
   PIXEL_TYPE_FAN,
   PIXEL_TYPE_NORMAL_EMITTER,
 } from "./SandFallSystem/const";
-import { ADD_MACHINE_EVENT, Direction } from "./consts";
+import { ADD_MACHINE_EVENT, DOWN, Direction, LEFT, RIGHT } from "./consts";
 
 export const VARIANT_MACHINE_CORE = 0;
 export const VARIANT_MACHINE_PART = 1;
@@ -29,6 +29,7 @@ export type MachineMeta = {
   pixelType: number;
   origin: [number, number];
   mask: number[][];
+  permanent?: boolean;
 };
 
 export const MachineTypes = [
@@ -179,7 +180,11 @@ type Machine = {
   width: number;
   height: number;
 
+  origin: [number, number];
+
   direction: number;
+
+  permanent?: boolean;
 };
 
 class MachineSystem {
@@ -230,6 +235,8 @@ class MachineSystem {
           width: machineType.width,
           height: machineType.height,
           direction,
+          origin: machineType.origin,
+          permanent: machineType.permanent,
         });
         this.machines.push({
           type: PixelTypeMachineMap[machineType.pixelType],
@@ -238,9 +245,87 @@ class MachineSystem {
           width: machineType.width,
           height: machineType.height,
           direction,
+          origin: machineType.origin,
+          permanent: machineType.permanent,
         });
       }
     );
+  }
+
+  getMachineAt(x: number, y: number) {
+    return this.machines.find((machine) => {
+      let dir = machine.direction;
+
+      let minX =
+        dir === RIGHT
+          ? machine.x + machine.origin[0] - machine.height + 1
+          : machine.x - machine.origin[0];
+      let minY =
+        dir === LEFT
+          ? machine.y + machine.origin[1] - machine.width + 1
+          : dir === DOWN
+          ? machine.y + machine.origin[1] - machine.height + 1
+          : machine.y - machine.origin[1];
+
+      let maxX =
+        dir === RIGHT || dir === LEFT
+          ? minX + machine.height - 1
+          : minX + machine.width - 1;
+      let maxY =
+        dir === RIGHT || dir === LEFT
+          ? minY + machine.width - 1
+          : minY + machine.height - 1;
+
+      if (minX <= x && x <= maxX && minY <= y && y <= maxY) {
+        return true;
+      }
+
+      return false;
+    });
+  }
+
+  removeMachineAt(x: number, y: number) {
+    let minX = 0;
+    let minY = 0;
+    let maxX = 0;
+    let maxY = 0;
+
+    let machineIndex = -1;
+
+    for (let i = 0; i < this.machines.length; i++) {
+      let machine = this.machines[i];
+
+      let dir = machine.direction;
+
+      minX =
+        dir === RIGHT
+          ? machine.x + machine.origin[0] - machine.height + 1
+          : machine.x - machine.origin[0];
+      minY =
+        dir === LEFT
+          ? machine.y + machine.origin[1] - machine.width + 1
+          : dir === DOWN
+          ? machine.y + machine.origin[1] - machine.height + 1
+          : machine.y - machine.origin[1];
+
+      maxX =
+        dir === RIGHT || dir === LEFT
+          ? minX + machine.height - 1
+          : minX + machine.width - 1;
+      maxY =
+        dir === RIGHT || dir === LEFT
+          ? minY + machine.width - 1
+          : minY + machine.height - 1;
+
+      if (minX <= x && x <= maxX && minY <= y && y <= maxY) {
+        machineIndex = i;
+        break;
+      }
+    }
+
+    this.machines.splice(machineIndex, 1);
+
+    return { minX, minY, maxX, maxY };
   }
 }
 

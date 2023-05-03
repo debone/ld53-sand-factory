@@ -8,7 +8,9 @@ import {
   ADD_SAND_EVENT,
   ADD_TILE_EVENT,
   DOWN,
+  ERASER_TOOL_EVENT,
   MINIMAP_TOOL_EVENT,
+  SWEEP_TOOL_EVENT,
   UP,
 } from "../systems/consts";
 import { params } from "./debug";
@@ -335,15 +337,7 @@ export class SceneUI extends Phaser.Scene {
       }
     });
 
-    this.keyE = this.input.keyboard!.addKey("E");
     const keyR = this.input.keyboard!.addKey("R");
-    const keyEsc = this.input.keyboard!.addKey("ESC");
-
-    keyEsc.on("up", () => {
-      this.activeTool = SELECTED_TOOL_INSPECTOR;
-      this.activeToolData = null;
-      this.mouseOverlayObject.setAlpha(0);
-    });
 
     keyR.on("up", () => {
       this.activeToolRotation = (this.activeToolRotation + 1) % 4;
@@ -359,7 +353,10 @@ export class SceneUI extends Phaser.Scene {
       ADD_MACHINE_EVENT,
       Math.floor(sandWorldWidth / 2 + cameraTilesWidth / 2) - 1,
       3,
-      MACHINES[MACHINE_NORMAL_EMITTER],
+      {
+        ...MACHINES[MACHINE_NORMAL_EMITTER],
+        permanent: true,
+      },
       DOWN
     );
 
@@ -367,7 +364,10 @@ export class SceneUI extends Phaser.Scene {
       ADD_MACHINE_EVENT,
       Math.floor(sandWorldWidth / 2 + cameraTilesWidth / 2) + 3,
       27,
-      MACHINES[MACHINE_COLLECTOR],
+      {
+        ...MACHINES[MACHINE_COLLECTOR],
+        permanent: true,
+      },
       UP
     );
 
@@ -655,8 +655,6 @@ Game by @javascripl
   declare counterText: Phaser.GameObjects.Text;
   declare toasterText: Phaser.GameObjects.Text;
 
-  declare keyE: Phaser.Input.Keyboard.Key;
-
   declare mouseOverlayObject: Phaser.GameObjects.Image;
 
   emitMouseDown(pointer: Phaser.Input.Pointer) {
@@ -670,6 +668,15 @@ Game by @javascripl
     }
 
     if (this.activeTool === SELECTED_TOOL_INSPECTOR) {
+      return;
+    }
+
+    if (this.activeTool === SELECTED_TOOL_ERASER) {
+      this.bus.emit(ERASER_TOOL_EVENT, this.tileX, this.tileY);
+      return;
+    }
+    if (this.activeTool === SELECTED_TOOL_SWEEPER) {
+      this.bus.emit(SWEEP_TOOL_EVENT, this.tileX, this.tileY);
       return;
     }
 
@@ -720,12 +727,6 @@ Game by @javascripl
           this.tileY,
           this.activeToolData.pixelType
         );
-        break;
-      }
-      case this.activeTool === SELECTED_TOOL_ERASER: {
-        break;
-      }
-      case this.activeTool === SELECTED_TOOL_SWEEPER: {
         break;
       }
     }
@@ -846,6 +847,10 @@ Game by @javascripl
       Phaser.Input.Keyboard.KeyCodes.FOUR
     );
 
+    const keyE = this.input.keyboard!.addKey("E");
+    const keyF = this.input.keyboard!.addKey("F");
+    const keyEsc = this.input.keyboard!.addKey("ESC");
+
     playButtonSprite.on("pointerout", () => {
       this.toasterText.setText("");
       playButtonSprite.setFrame(0);
@@ -950,8 +955,26 @@ Game by @javascripl
     });
     inspectToolSprite.on("pointerover", () => {
       inspectToolSprite.setFrame(1);
-      this.toasterText.setStyle(TOASTER_TEXT_STYLE_RED);
-      this.toasterText.setText(`Sorry, run out of time :(`);
+    });
+    inspectToolSprite.on("pointerdown", () => {
+      inspectToolSprite.setFrame(2);
+    });
+    keyEsc.on("down", () => {
+      inspectToolSprite.setFrame(2);
+    });
+    inspectToolSprite.on("pointerup", () => {
+      inspectToolSprite.setFrame(1);
+
+      this.activeTool = SELECTED_TOOL_INSPECTOR;
+      this.activeToolData = null;
+      this.mouseOverlayObject.setAlpha(0);
+    });
+    keyEsc.on("up", () => {
+      inspectToolSprite.setFrame(0);
+
+      this.activeTool = SELECTED_TOOL_INSPECTOR;
+      this.activeToolData = null;
+      this.mouseOverlayObject.setAlpha(0);
     });
 
     eraserToolSprite.on("pointerout", () => {
@@ -960,8 +983,26 @@ Game by @javascripl
     });
     eraserToolSprite.on("pointerover", () => {
       eraserToolSprite.setFrame(1);
-      this.toasterText.setStyle(TOASTER_TEXT_STYLE_RED);
-      this.toasterText.setText(`Sorry, run out of time :(`);
+      this.toasterText.setStyle(TOASTER_TEXT_STYLE);
+      this.toasterText.setText(`Eraser (shortcut "e")`);
+    });
+    eraserToolSprite.on("pointerdown", () => {
+      eraserToolSprite.setFrame(2);
+    });
+    eraserToolSprite.on("pointerup", () => {
+      eraserToolSprite.setFrame(1);
+      this.activeTool = SELECTED_TOOL_ERASER;
+      this.activeToolData = null;
+      this.mouseOverlayObject.setAlpha(0);
+    });
+    keyE.on("down", () => {
+      eraserToolSprite.setFrame(2);
+    });
+    keyE.on("up", () => {
+      eraserToolSprite.setFrame(0);
+      this.activeTool = SELECTED_TOOL_ERASER;
+      this.activeToolData = null;
+      this.mouseOverlayObject.setAlpha(0);
     });
 
     sweepToolSprite.on("pointerout", () => {
@@ -970,8 +1011,26 @@ Game by @javascripl
     });
     sweepToolSprite.on("pointerover", () => {
       sweepToolSprite.setFrame(1);
-      this.toasterText.setStyle(TOASTER_TEXT_STYLE_RED);
-      this.toasterText.setText(`Sorry, run out of time :(`);
+      this.toasterText.setStyle(TOASTER_TEXT_STYLE);
+      this.toasterText.setText(`Sweep sand (f)`);
+    });
+    sweepToolSprite.on("pointerdown", () => {
+      sweepToolSprite.setFrame(2);
+    });
+    sweepToolSprite.on("pointerup", () => {
+      sweepToolSprite.setFrame(1);
+      this.activeTool = SELECTED_TOOL_SWEEPER;
+      this.activeToolData = null;
+      this.mouseOverlayObject.setAlpha(0);
+    });
+    keyF.on("down", () => {
+      eraserToolSprite.setFrame(2);
+    });
+    keyF.on("up", () => {
+      eraserToolSprite.setFrame(0);
+      this.activeTool = SELECTED_TOOL_ERASER;
+      this.activeToolData = null;
+      this.mouseOverlayObject.setAlpha(0);
     });
 
     minimapToolSprite.on("pointerout", () => {
@@ -1320,10 +1379,6 @@ Game by @javascripl
 
     this.tileX = Math.floor(worldPoint.x / tileSize);
     this.tileY = Math.floor(worldPoint.y / tileSize);
-
-    if (this.keyE.isDown) {
-      this.bus.emit(ADD_SAND_EVENT, this.tileX, this.tileY);
-    }
 
     if (totalSand.count !== totalSand.lastUpdate) {
       this.counterText.setText(

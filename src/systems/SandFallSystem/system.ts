@@ -8,8 +8,10 @@ import {
   ADD_TILE_EVENT,
   DOWN,
   Direction,
+  ERASER_TOOL_EVENT,
   LEFT,
   RIGHT,
+  SWEEP_TOOL_EVENT,
   UP,
 } from "../consts";
 import {
@@ -18,6 +20,7 @@ import {
   GetPixelVariant,
   GetSandType,
   IsSand,
+  PIXEL_TYPE_AIR,
   PIXEL_TYPE_AIR_SHIFTED,
   PIXEL_TYPE_MINIMAP_COLORS,
   PIXEL_TYPE_RENDER_CALL,
@@ -66,6 +69,32 @@ class SandFallSystem {
     });
     bus.on(ADD_TILE_EVENT, (x: number, y: number, type: number) => {
       sandWorld[x + y * sandWorldWidth] = type;
+    });
+    bus.on(SWEEP_TOOL_EVENT, (x: number, y: number) => {
+      if (IsSand(sandWorld[x + y * sandWorldWidth])) {
+        sandWorld[x + y * sandWorldWidth] = PIXEL_TYPE_AIR;
+      }
+    });
+    bus.on(ERASER_TOOL_EVENT, (x: number, y: number) => {
+      const machine = this.scene.machineSystem.getMachineAt(x, y);
+
+      if (machine?.permanent) {
+        return;
+      }
+
+      if (machine) {
+        const { minX, minY, maxX, maxY } =
+          this.scene.machineSystem.removeMachineAt(x, y);
+        for (let dy = minY; dy !== maxY + 1; dy++) {
+          for (let dx = minX; dx !== maxX + 1; dx++) {
+            sandWorld[dx + dy * sandWorldWidth] = PIXEL_TYPE_AIR;
+          }
+        }
+
+        return;
+      }
+
+      sandWorld[x + y * sandWorldWidth] = PIXEL_TYPE_AIR;
     });
     bus.on(
       ADD_MACHINE_EVENT,
